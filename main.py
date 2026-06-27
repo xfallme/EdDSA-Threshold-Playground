@@ -1,5 +1,5 @@
 from pyscript import web, when
-import eddsa_threshold
+from eddsa_threshold.eddsa.algorithms.ed25519 import Ed25519
 
 @when("click", "#test-button")
 def test_function(event):

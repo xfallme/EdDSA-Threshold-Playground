@@ -1,0 +1,5 @@
+{
+  "python.analysis.extraPaths": [
+    "~/pyscript-stubs/src/pyscript-stubs"
+  ]
+}
