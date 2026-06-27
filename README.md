@@ -59,8 +59,8 @@ Features:
 
 ## Related Projects
 
-- **EdDSA-Threshold Library:** https://github.com/xfallme/EdDSA-Threshold
-- **EdDSA-Threshold Package:** https://pypi.org/project/eddsa-threshold/
+- **EdDSA-Threshold Library:** [https://github.com/xfallme/EdDSA-Threshold/](https://github.com/xfallme/EdDSA-Threshold/)
+- **EdDSA-Threshold Package:** [https://pypi.org/project/eddsa-threshold/](https://pypi.org/project/eddsa-threshold/)
 
 ---
 
