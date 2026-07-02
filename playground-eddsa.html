@@ -20,7 +20,10 @@
 
         <select id="algorithm">
             <option value="ed25519">Ed25519</option>
+            <option value="ed25519ph">Ed25519 Prehash</option>
+            <option value="ed25519ctx">Ed25519 Context</option>
             <option value="ed448">Ed448</option>
+            <option value="ed448ph">Ed448 Prehash</option>
         </select>
 
     </header>
@@ -42,9 +45,7 @@
     </nav>
 
     <section id="keygen" class="tab">
-
         <div class="card">
-
             <h2>Key Generation</h2>
 
             <div class="form-group">
@@ -60,27 +61,90 @@
                 <button id="generate-keypair-button">Generate Keypair</button>
                 <button id="clear-keypair-button" type="button">Clear</button>
             </div>
-
         </div>
 
         <div class="card">
-
             <div class="form-group">
                 <label id="private-key-output-label" for="private-key-output">Private Key</label>
-                <textarea label="Private Key" id="private-key-output" rows="3" disabled spellcheck="false" placeholder="Private key will appear here..."></textarea>
-            </div>
+                <textarea label="Private Key" id="private-key-output" rows="3" disabled spellcheck="false"
+                    placeholder="Private key will appear here..."></textarea>
 
-            <div class="form-group">
                 <label id="public-key-output-label" for="public-key-output">Public Key</label>
-                <textarea id="public-key-output" rows="3" disabled spellcheck="false" placeholder="Public key will appear here..."></textarea>
+                <textarea id="public-key-output" rows="3" disabled spellcheck="false"
+                    placeholder="Public key will appear here..."></textarea>
             </div>
-
         </div>
-
     </section>
 
     <section id="sign" class="tab" hidden>
-        <h2>Signing</h2>
+        <div class="card">
+            <h2>Signing</h2>
+
+            <div class="form-group">
+                <label for="sign-use-existing-key">Use Existing Key from the Key Generation Tab</label>
+                <input type="checkbox" id="sign-use-existing-key" checked />
+
+                <div id="sign-private-key-section">
+                    <label for="sign-private-key-format">Private Key Format</label>
+                    <select id="sign-private-key-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+
+                    <label for="sign-private-key">Private Key</label>
+                    <textarea id="sign-private-key" rows="3" spellcheck="false"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="sign-message-format">Message Format</label>
+                <select id="sign-message-format">
+                    <option value="text">Text</option>
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
+
+                <label for="sign-message">Message</label>
+                <textarea id="sign-message" rows="5" spellcheck="false">Hello, World!</textarea>
+            </div>
+
+            <div id="sign-context-section" class="form-group" hidden>
+                <label for="sign-context-format">Context Format</label>
+                <select id="sign-context-format">
+                    <option value="text">Text</option>
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
+
+                <label for="sign-context">Context</label>
+                <textarea id="sign-context" rows="5" spellcheck="false"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="sign-signature-format">Signature Format</label>
+                <select id="sign-signature-format">
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
+            </div>
+
+            <div class="button-row">
+                <button id="sign-button">Sign</button>
+                <button id="clear-sign-button" type="button">Clear</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="sign-signature-output">Signature</label>
+                <textarea id="sign-signature-output" rows="3" disabled spellcheck="false"
+                    placeholder="Signature will appear here..."></textarea>
+            </div>
+        </div>
     </section>
 
     <section id="verify" class="tab" hidden>
@@ -90,6 +154,7 @@
     <script type="py" src="./playground-eddsa.py" config="./pyscript.json"></script>
 
     <script>
+        // Tab switching logic
         const buttons = document.querySelectorAll(".tab-button");
         const tabs = document.querySelectorAll(".tab");
 
@@ -101,6 +166,50 @@
                 document.getElementById(button.dataset.tab).hidden = false;
                 button.classList.add("active");
             };
+        });
+
+        // Show/hide private key section based on checkbox
+        const signUseExistingKeyCheckbox = document.getElementById("sign-use-existing-key");
+        const signPrivateKeySection = document.getElementById("sign-private-key-section");
+
+        signUseExistingKeyCheckbox.addEventListener("change", () => {
+            const useExistingKey = signUseExistingKeyCheckbox.checked;
+            signPrivateKeySection.hidden = useExistingKey;
+        });
+
+        // Show/hide context section based on selected algorithm
+        const selectedAlgorithm = document.getElementById("algorithm");
+
+        function updateVisibility(algorithm) {
+            if (algorithm === "ed25519" || algorithm === "ed25519ph") {
+                document.getElementById("sign-context-section").style.display = "none";
+            } else {
+                document.getElementById("sign-context-section").style.display = "block";
+            }
+        }
+
+        updateVisibility(selectedAlgorithm.value);
+        selectedAlgorithm.addEventListener("change", () => {
+            updateVisibility(selectedAlgorithm.value);
+        });
+
+        // Update labels based on selected algorithm and run it once on page load
+        function updateLabels(algorithm) {
+            const privateKeyLabel = document.getElementById("private-key-output-label");
+            const publicKeyLabel = document.getElementById("public-key-output-label");
+
+            if (algorithm.startsWith("ed25519")) {
+                privateKeyLabel.textContent = "Private Key (32 bytes)";
+                publicKeyLabel.textContent = "Public Key (32 bytes)";
+            } else if (algorithm.startsWith("ed448")) {
+                privateKeyLabel.textContent = "Private Key (57 bytes)";
+                publicKeyLabel.textContent = "Public Key (57 bytes)";
+            }
+        }
+
+        updateLabels(selectedAlgorithm.value);
+        selectedAlgorithm.addEventListener("change", () => {
+            updateLabels(selectedAlgorithm.value);
         });
     </script>
 

@@ -1,27 +1,6 @@
 from base64 import b64encode, b64decode
 import ast
 from pyscript import web
-from typing import Dict
-
-ATTRIBUTES: Dict[str, Dict[str, str]] = {
-    "ed25519": {
-        "private-key-output-label": "Private Key (32 bytes/256 bits)",
-        "public-key-output-label": "Public Key (32 bytes/256 bits)"
-    },
-    "ed448": {
-        "private-key-output-label": "Private Key (57 bytes/456 bits)",
-        "public-key-output-label": "Public Key (57 bytes/456 bits)"
-    }
-}
-
-
-def update_labels(algorithm: str):
-    print(f"Updating labels for algorithm: {algorithm}")
-    if algorithm in ATTRIBUTES:
-        web.page["private-key-output-label"].innerText = ATTRIBUTES[algorithm]["private-key-output-label"]
-        web.page["public-key-output-label"].innerText = ATTRIBUTES[algorithm]["public-key-output-label"]
-    else:
-        raise ValueError(f"Unknown algorithm: {algorithm}")
 
 
 def set_output(output_element: str, data: bytes):
@@ -52,6 +31,9 @@ def get_bytes_from_input(input_element: str) -> bytes:
 
 
 def _decode_bytes(data: str, fmt: str) -> bytes:
+    if fmt == "text":
+        return data.encode()
+
     if fmt == "hex":
         return bytes.fromhex(data.strip())
 
