@@ -33,7 +33,6 @@ Features:
 - Generate key pairs
 - Sign arbitrary messages
 - Verify signatures
-- Inspect intermediate values
 - Experiment with Ed25519 and Ed448
 
 ➡️ **Open:** [playground-eddsa.html](./playground-eddsa.html)

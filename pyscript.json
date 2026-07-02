@@ -1,3 +1,12 @@
 {
-    "packages": ["eddsa-threshold"]
+    "packages": [
+        "eddsa-threshold"
+    ],
+    "fetch": [
+        {
+            "files": [
+                "./util.py"
+            ]
+        }
+    ]
 }
