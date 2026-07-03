@@ -39,6 +39,7 @@ def update_algorithm_info():
           "and keypair class:", keypair_cls.__name__)
 
     clear_keypair()
+    clear_existing_keypair()
     clear_sign()
     clear_verify()
 
@@ -67,10 +68,39 @@ def clear_keypair():
     web.page["keygen-status"].hidden = True
 
 
+@when("click", "#existing-keypair-button")
+def derive_keypair():
+    global keypair_cls
+    global keypair
+
+    status_element = "keygen-status"
+
+    private_key_input = get_bytes_from_input(
+        "keygen-existing-private-key", status_element)
+    try:
+        keypair = keypair_cls.from_private_bytes(private_key_input)
+        set_output_format_override(
+            "private-key-output", "keygen-existing-output-format", keypair.private_bytes)
+        set_output_format_override(
+            "public-key-output", "keygen-existing-output-format", keypair.public_bytes)
+        set_status(status_element,
+                   "Keypair derived successfully. It is now stored and ready to use in the other tabs.", "success")
+    except ValueError as e:
+        set_status(status_element, f"Invalid private key: {e}", "error")
+
+
+@when("click", "#clear-existing-keypair-button")
+def clear_existing_keypair():
+    clear_keypair()
+    web.page["keygen-existing-private-key"].value = ""
+
+
 @when("click", "#sign-button")
 def sign_message():
     global algorithm_cls
     global keypair
+
+    status_element = "sign-status"
 
     active_keypair = None
 
@@ -81,14 +111,15 @@ def sign_message():
             return
         active_keypair = keypair
     else:
-        private_key_input = get_bytes_from_input("sign-private-key")
+        private_key_input = get_bytes_from_input(
+            "sign-private-key", status_element)
         try:
             active_keypair = keypair_cls.from_private_bytes(private_key_input)
         except ValueError as e:
-            set_status("sign-status", f"Invalid private key: {e}", "error")
+            set_status(status_element, f"Invalid private key: {e}", "error")
             return
 
-    message = get_bytes_from_input("sign-message")
+    message = get_bytes_from_input("sign-message", status_element)
 
     selected_algorithm = ''.join(web.page["algorithm"].value)
     if selected_algorithm in ["ed25519", "ed25519ph"]:
@@ -96,7 +127,7 @@ def sign_message():
         signature = algorithm_cls.sign(message, active_keypair)
     else:
         # with context
-        context = get_bytes_from_input("sign-context")
+        context = get_bytes_from_input("sign-context", status_element)
         signature = algorithm_cls.sign(message, active_keypair, context)
 
     set_output("sign-signature-output", signature)
@@ -119,6 +150,8 @@ def verify_signature():
     global algorithm_cls
     global keypair
 
+    status_element = "verify-status"
+
     public_key = None
 
     if web.page["verify-use-existing-key"].checked:
@@ -128,10 +161,10 @@ def verify_signature():
             return
         public_key = keypair.public_bytes
     else:
-        public_key = get_bytes_from_input("verify-public-key")
+        public_key = get_bytes_from_input("verify-public-key", status_element)
 
-    message = get_bytes_from_input("verify-message")
-    signature = get_bytes_from_input("verify-signature")
+    message = get_bytes_from_input("verify-message", status_element)
+    signature = get_bytes_from_input("verify-signature", status_element)
 
     selected_algorithm = ''.join(web.page["algorithm"].value)
     if selected_algorithm in ["ed25519", "ed25519ph"]:
@@ -139,7 +172,7 @@ def verify_signature():
         is_valid = algorithm_cls.verify(signature, message, public_key)
     else:
         # with context
-        context = get_bytes_from_input("verify-context")
+        context = get_bytes_from_input("verify-context", status_element)
         is_valid = algorithm_cls.verify(
             signature, message, public_key, context)
 
@@ -164,5 +197,6 @@ def clear_verify():
 update_algorithm_info()
 # clear fields because the variables are not initialized yet
 clear_keypair()
+clear_existing_keypair()
 clear_sign()
 clear_verify()

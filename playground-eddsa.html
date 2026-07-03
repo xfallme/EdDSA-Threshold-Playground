@@ -54,6 +54,28 @@
         </div>
 
         <div class="card">
+            <h2>From Private Key</h2>
+
+            <div class="form-group">
+                <label for="keygen-existing-private-key-format">Output Format</label>
+                <select id="keygen-existing-private-key-format">
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
+
+                <label id="keygen-existing-private-key-label" for="keygen-existing-private-key">Private Key</label>
+                <textarea id="keygen-existing-private-key" rows="3" spellcheck="false"
+                    placeholder="Enter private key..."></textarea>
+            </div>
+
+            <div class="button-row">
+                <button id="existing-keypair-button" class="primary">Derive Keypair</button>
+                <button id="clear-existing-keypair-button">Clear</button>
+            </div>
+        </div>
+
+        <div class="card">
             <div class="form-group">
                 <label id="private-key-output-label" for="private-key-output">Private Key</label>
                 <textarea label="Private Key" id="private-key-output" rows="3" disabled spellcheck="false"
@@ -79,17 +101,17 @@
             </div>
 
             <div id="sign-private-key-section" class="form-group">
-                    <label for="sign-private-key-format">Private Key Format</label>
-                    <select id="sign-private-key-format">
-                        <option value="hex">Hex</option>
-                        <option value="base64">Base64</option>
-                        <option value="python">Python Byte String (b'...')</option>
-                    </select>
+                <label for="sign-private-key-format">Private Key Format</label>
+                <select id="sign-private-key-format">
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
 
-                    <label id="sign-private-key-label" for="sign-private-key">Private Key</label>
-                    <textarea id="sign-private-key" rows="3" spellcheck="false"
-                        placeholder="Enter private key..."></textarea>
-                </div>
+                <label id="sign-private-key-label" for="sign-private-key">Private Key</label>
+                <textarea id="sign-private-key" rows="3" spellcheck="false"
+                    placeholder="Enter private key..."></textarea>
+            </div>
 
             <div class="form-group">
                 <label for="sign-message-format">Message Format</label>

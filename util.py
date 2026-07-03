@@ -33,24 +33,41 @@ def _encode_bytes(data: bytes, fmt: str) -> str:
     raise ValueError(fmt)
 
 
-def get_bytes_from_input(input_element: str) -> bytes:
-    return _decode_bytes(''.join(web.page[input_element].value), ''.join(web.page[f"{input_element}-format"].value))
+def get_bytes_from_input(input_element: str, status_element: str) -> bytes:
+    return _decode_bytes(''.join(web.page[input_element].value), ''.join(web.page[f"{input_element}-format"].value), status_element)
 
 
-def _decode_bytes(data: str, fmt: str) -> bytes:
+def _decode_bytes(data: str, fmt: str, status_element: str) -> bytes:
     if fmt == "text":
-        return data.encode()
+        try:
+            return data.encode()
+        except ValueError as e:
+            set_status(status_element, f"Invalid text input: {e}", "error")
+            raise ValueError(f"Invalid text input: {e}")
 
     if fmt == "hex":
-        return bytes.fromhex(data.strip())
+        try:
+            return bytes.fromhex(data.strip())
+        except ValueError as e:
+            set_status(status_element, f"Invalid hex input: {e}", "error")
+            raise ValueError(f"Invalid hex input: {e}")
 
     if fmt == "base64":
-        return b64decode(data.strip())
+        try:
+            return b64decode(data.strip())
+        except ValueError as e:
+            set_status(status_element, f"Invalid Base64 input: {e}", "error")
+            raise ValueError(f"Invalid Base64 input: {e}")
 
     if fmt == "python":
-        obj = ast.literal_eval(data)
-        if not isinstance(obj, bytes):
-            raise ValueError("Expected bytes literal")
-        return obj
+        try:
+            obj = ast.literal_eval(data)
+            if not isinstance(obj, bytes):
+                raise ValueError("Expected bytes literal")
+            return obj
+        except (ValueError, SyntaxError) as e:
+            set_status(status_element, f"Invalid Python bytes literal: {e}", "error")
+            raise ValueError(f"Invalid Python bytes literal: {e}")
 
-    raise ValueError(fmt)
+    set_status(status_element, f"Unsupported format: {fmt}", "error")
+    raise ValueError(f"Unsupported format: {fmt}")
