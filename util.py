@@ -3,6 +3,13 @@ import ast
 from pyscript import web
 
 
+def set_status(name: str, message: str, status: str = "info"):
+    box = web.page[name]
+    box.hidden = False
+    box.className = f"status-box {status}"
+    box.innerText = message
+
+
 def set_output(output_element: str, data: bytes):
     set_output_format_override(
         output_element, f"{output_element}-format", data)

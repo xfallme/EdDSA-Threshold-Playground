@@ -11,7 +11,7 @@ from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 from eddsa_threshold.eddsa.algorithms.ed448ph import Ed448PH
 from eddsa_threshold.eddsa.keys.ed448_keypair import Ed448Keypair
 
-from util import get_bytes_from_input, set_output, set_output_format_override
+from util import get_bytes_from_input, set_output, set_output_format_override, set_status
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519, Ed25519Keypair),
@@ -37,6 +37,9 @@ def update_algorithm_info():
 
     print("ready to use algorithm class:", algorithm_cls.__name__,
           "and keypair class:", keypair_cls.__name__)
+    
+    clear_keypair()
+    clear_sign()
 
 
 @when("click", "#generate-keypair-button")
@@ -49,6 +52,8 @@ def generate_keypair():
         "private-key-output", "keygen-output-format", keypair.private_bytes)
     set_output_format_override(
         "public-key-output", "keygen-output-format", keypair.public_bytes)
+    set_status("keygen-status",
+               "Keypair generated successfully. It is now stored and ready to use in the other tabs.", "success")
 
 
 @when("click", "#clear-keypair-button")
@@ -58,25 +63,52 @@ def clear_keypair():
     keypair = None
     web.page["private-key-output"].value = ""
     web.page["public-key-output"].value = ""
-    
+    web.page["keygen-status"].hidden = True
 
-@when("click", "#sign-button")    
+
+@when("click", "#sign-button")
 def sign_message():
     global algorithm_cls
     global keypair
-
-    if keypair is None:
-        raise ValueError("No keypair available for signing.")
+    
+    active_keypair = None
+    
+    if web.page["sign-use-existing-key"].checked:
+        if keypair is None:
+            set_status("sign-status", "No keypair generated yet. Please generate a keypair first.", "error")
+            return
+        active_keypair = keypair
+    else:
+        private_key_input = get_bytes_from_input("sign-private-key")
+        try:
+            active_keypair = keypair_cls.from_private_bytes(private_key_input)
+        except ValueError as e:
+            set_status("sign-status", f"Invalid private key: {e}", "error")
+            return
 
     message = get_bytes_from_input("sign-message")
-    signature = algorithm_cls.sign(message, keypair)
-    set_output_format_override("sign-signature-output", "sign-signature-format", signature)
+    
+    selected_algorithm = ''.join(web.page["algorithm"].value)
+    if selected_algorithm in ["ed25519", "ed25519ph"]:
+        # without context
+        signature = algorithm_cls.sign(message, active_keypair)
+    else:
+        # with context
+        context = get_bytes_from_input("sign-context")
+        signature = algorithm_cls.sign(message, active_keypair, context)
+
+    set_output("sign-signature-output", signature)
+    set_status("sign-status", "Message signed successfully.", "success")
 
 
 @when("click", "#clear-sign-button")
 def clear_sign():
+    web.page["sign-private-key"].value = ""
+    web.page["sign-message"].value = ""
+    web.page["sign-context"].value = ""
     web.page["sign-use-existing-key"].checked = False
     web.page["sign-signature-output"].value = ""
+    web.page["sign-status"].hidden = True
 
 
 # Initialize algorithm and keypair classes on page load (set correct labels and placeholders)

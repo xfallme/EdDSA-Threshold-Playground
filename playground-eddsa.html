@@ -29,19 +29,9 @@
     </header>
 
     <nav class="tabs">
-
-        <button class="tab-button active" data-tab="keygen">
-            Key Generation
-        </button>
-
-        <button class="tab-button" data-tab="sign">
-            Signing
-        </button>
-
-        <button class="tab-button" data-tab="verify">
-            Verification
-        </button>
-
+        <button class="tab-button active" data-tab="keygen">Key Generation</button>
+        <button class="tab-button" data-tab="sign">Signing</button>
+        <button class="tab-button" data-tab="verify">Verification</button>
     </nav>
 
     <section id="keygen" class="tab">
@@ -73,6 +63,7 @@
                 <textarea id="public-key-output" rows="3" disabled spellcheck="false"
                     placeholder="Public key will appear here..."></textarea>
             </div>
+            <div id="keygen-status" class="status-box success" hidden></div>
         </div>
     </section>
 
@@ -92,7 +83,7 @@
                         <option value="python">Python Byte String (b'...')</option>
                     </select>
 
-                    <label for="sign-private-key">Private Key</label>
+                    <label id="sign-private-key-label" for="sign-private-key">Private Key</label>
                     <textarea id="sign-private-key" rows="3" spellcheck="false"></textarea>
                 </div>
             </div>
@@ -124,8 +115,8 @@
             </div>
 
             <div class="form-group">
-                <label for="sign-signature-format">Signature Format</label>
-                <select id="sign-signature-format">
+                <label for="sign-signature-output-format">Signature Format</label>
+                <select id="sign-signature-output-format">
                     <option value="hex">Hex</option>
                     <option value="base64">Base64</option>
                     <option value="python">Python Byte String (b'...')</option>
@@ -144,11 +135,14 @@
                 <textarea id="sign-signature-output" rows="3" disabled spellcheck="false"
                     placeholder="Signature will appear here..."></textarea>
             </div>
+            <div id="sign-status" class="status-box success" hidden></div>
         </div>
     </section>
 
     <section id="verify" class="tab" hidden>
         <h2>Verification</h2>
+
+        <div id="verify-status" class="status-box success" hidden></div>
     </section>
 
     <script type="py" src="./playground-eddsa.py" config="./pyscript.json"></script>
@@ -195,15 +189,18 @@
 
         // Update labels based on selected algorithm and run it once on page load
         function updateLabels(algorithm) {
-            const privateKeyLabel = document.getElementById("private-key-output-label");
-            const publicKeyLabel = document.getElementById("public-key-output-label");
+            const privateKeyLabelKeygen = document.getElementById("private-key-output-label");
+            const publicKeyLabelKeygen = document.getElementById("public-key-output-label");
+            const privateKeyLabelSign = document.getElementById("sign-private-key-label");
 
             if (algorithm.startsWith("ed25519")) {
-                privateKeyLabel.textContent = "Private Key (32 bytes)";
-                publicKeyLabel.textContent = "Public Key (32 bytes)";
+                privateKeyLabelKeygen.textContent = "Private Key (32 bytes)";
+                publicKeyLabelKeygen.textContent = "Public Key (32 bytes)";
+                privateKeyLabelSign.textContent = "Private Key (32 bytes)";
             } else if (algorithm.startsWith("ed448")) {
-                privateKeyLabel.textContent = "Private Key (57 bytes)";
-                publicKeyLabel.textContent = "Public Key (57 bytes)";
+                privateKeyLabelKeygen.textContent = "Private Key (57 bytes)";
+                publicKeyLabelKeygen.textContent = "Public Key (57 bytes)";
+                privateKeyLabelSign.textContent = "Private Key (57 bytes)";
             }
         }
 

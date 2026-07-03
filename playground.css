@@ -63,3 +63,23 @@ textarea {
 .button-row button {
     padding: .75rem 1.5rem;
 }
+
+.status-box {
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    border: 1px solid;
+    font-weight: 500;
+}
+
+.status-box.success {
+    background: #ecfdf5;
+    border-color: #6ee7b7;
+    color: #166534;
+}
+
+.status-box.error {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
