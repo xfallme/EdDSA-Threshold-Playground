@@ -3,11 +3,11 @@
 > Interactive browser-based playgrounds for exploring **EdDSA** and **FROST threshold signatures**, powered by **PyScript** and running entirely in the browser.
 
 <p align="center">
-  <a href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-eddsa.html">
+  <a target="_blank" href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-eddsa.html">
     <img alt="EdDSA Playground" src="https://img.shields.io/badge/Launch-EdDSA%20Playground-2563eb?style=for-the-badge">
   </a>
   &nbsp;
-  <a href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-frost.html">
+  <a target="_blank" href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-frost.html">
     <img alt="FROST Playground" src="https://img.shields.io/badge/Launch-FROST%20Playground-16a34a?style=for-the-badge">
   </a>
 </p>
