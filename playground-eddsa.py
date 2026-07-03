@@ -109,7 +109,7 @@ def clear_sign():
     web.page["sign-message"].value = ""
     web.page["sign-context"].value = ""
     web.page["sign-use-existing-key"].checked = False
-    web.page["sign-private-key-section"].hidden = False
+    web.page["sign-private-key-section"].style["display"] = "flex"
     web.page["sign-signature-output"].value = ""
     web.page["sign-status"].hidden = True
 
@@ -156,7 +156,7 @@ def clear_verify():
     web.page["verify-signature"].value = ""
     web.page["verify-context"].value = ""
     web.page["verify-use-existing-key"].checked = False
-    web.page["verify-public-key-section"].hidden = False
+    web.page["verify-public-key-section"].style["display"] = "flex"
     web.page["verify-status"].hidden = True
 
 

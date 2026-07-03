@@ -16,7 +16,7 @@
 <body>
     <header>
 
-        <h1>🔐 EdDSA Playground</h1>
+        <h1 style="text-align: center">🔐 EdDSA Playground</h1>
 
         <select id="algorithm">
             <option value="ed25519">Ed25519</option>
@@ -58,10 +58,12 @@
                 <label id="private-key-output-label" for="private-key-output">Private Key</label>
                 <textarea label="Private Key" id="private-key-output" rows="3" disabled spellcheck="false"
                     placeholder="Private key will appear here..."></textarea>
+                <button class="copy-button" data-copy-target="private-key-output">📋 Copy</button>
 
                 <label id="public-key-output-label" for="public-key-output">Public Key</label>
                 <textarea id="public-key-output" rows="3" disabled spellcheck="false"
                     placeholder="Public key will appear here..."></textarea>
+                <button class="copy-button" data-copy-target="public-key-output">📋 Copy</button>
             </div>
             <div id="keygen-status" class="status-box success" hidden></div>
         </div>
@@ -74,8 +76,9 @@
             <div class="form-group">
                 <label for="sign-use-existing-key">Use Existing Key from the Key Generation Tab</label>
                 <input type="checkbox" id="sign-use-existing-key" checked />
+            </div>
 
-                <div id="sign-private-key-section">
+            <div id="sign-private-key-section" class="form-group">
                     <label for="sign-private-key-format">Private Key Format</label>
                     <select id="sign-private-key-format">
                         <option value="hex">Hex</option>
@@ -84,9 +87,9 @@
                     </select>
 
                     <label id="sign-private-key-label" for="sign-private-key">Private Key</label>
-                    <textarea id="sign-private-key" rows="3" spellcheck="false"></textarea>
+                    <textarea id="sign-private-key" rows="3" spellcheck="false"
+                        placeholder="Enter private key..."></textarea>
                 </div>
-            </div>
 
             <div class="form-group">
                 <label for="sign-message-format">Message Format</label>
@@ -98,10 +101,11 @@
                 </select>
 
                 <label for="sign-message">Message</label>
-                <textarea id="sign-message" rows="5" spellcheck="false">Hello, World!</textarea>
+                <textarea id="sign-message" rows="5" spellcheck="false"
+                    placeholder="Enter message to sign..."></textarea>
             </div>
 
-            <div id="sign-context-section" class="form-group" hidden>
+            <div id="sign-context-section" class="form-group">
                 <label for="sign-context-format">Context Format</label>
                 <select id="sign-context-format">
                     <option value="text">Text</option>
@@ -134,6 +138,7 @@
                 <label for="sign-signature-output">Signature</label>
                 <textarea id="sign-signature-output" rows="3" disabled spellcheck="false"
                     placeholder="Signature will appear here..."></textarea>
+                <button class="copy-button" data-copy-target="sign-signature-output">📋 Copy</button>
             </div>
             <div id="sign-status" class="status-box success" hidden></div>
         </div>
@@ -146,18 +151,19 @@
             <div class="form-group">
                 <label for="verify-use-existing-key">Use Existing Key from the Key Generation Tab</label>
                 <input type="checkbox" id="verify-use-existing-key" />
+            </div>
 
-                <div id="verify-public-key-section">
-                    <label for="verify-public-key-format">Public Key Format</label>
-                    <select id="verify-public-key-format">
-                        <option value="hex">Hex</option>
-                        <option value="base64">Base64</option>
-                        <option value="python">Python Byte String</option>
-                    </select>
+            <div id="verify-public-key-section" class="form-group">
+                <label for="verify-public-key-format">Public Key Format</label>
+                <select id="verify-public-key-format">
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String</option>
+                </select>
 
-                    <label id="verify-public-key-label" for="verify-public-key">Public Key</label>
-                    <textarea id="verify-public-key" rows="3" spellcheck="false"></textarea>
-                </div>
+                <label id="verify-public-key-label" for="verify-public-key">Public Key</label>
+                <textarea id="verify-public-key" rows="3" spellcheck="false"
+                    placeholder="Enter public key..."></textarea>
             </div>
 
             <div class="form-group">
@@ -170,10 +176,11 @@
                 </select>
 
                 <label for="verify-message">Message</label>
-                <textarea id="verify-message" rows="5" spellcheck="false"></textarea>
+                <textarea id="verify-message" rows="5" spellcheck="false"
+                    placeholder="Enter message to verify..."></textarea>
             </div>
 
-            <div id="verify-context-section" class="form-group" hidden>
+            <div id="verify-context-section" class="form-group">
                 <label for="verify-context-format">Context Format</label>
                 <select id="verify-context-format">
                     <option value="text">Text</option>
@@ -195,7 +202,8 @@
                 </select>
 
                 <label id="verify-signature-label" for="verify-signature">Signature</label>
-                <textarea id="verify-signature" rows="3" spellcheck="false"></textarea>
+                <textarea id="verify-signature" rows="3" spellcheck="false"
+                    placeholder="Enter signature to verify..."></textarea>
             </div>
 
             <div class="button-row">
@@ -230,7 +238,11 @@
 
         signUseExistingKeyCheckbox.addEventListener("change", () => {
             const useExistingKey = signUseExistingKeyCheckbox.checked;
-            signPrivateKeySection.hidden = useExistingKey;
+            if (useExistingKey) {
+                signPrivateKeySection.style.display = "none";
+            } else {
+                signPrivateKeySection.style.display = "flex";
+            }
         });
 
         const verifyUseExistingKeyCheckbox = document.getElementById("verify-use-existing-key");
@@ -238,7 +250,11 @@
 
         verifyUseExistingKeyCheckbox.addEventListener("change", () => {
             const useExistingKey = verifyUseExistingKeyCheckbox.checked;
-            verifyPublicKeySection.hidden = useExistingKey;
+            if (useExistingKey) {
+                verifyPublicKeySection.style.display = "none";
+            } else {
+                verifyPublicKeySection.style.display = "flex";
+            }
         });
 
         // Show/hide context section based on selected algorithm
@@ -249,8 +265,8 @@
                 document.getElementById("sign-context-section").style.display = "none";
                 document.getElementById("verify-context-section").style.display = "none";
             } else {
-                document.getElementById("sign-context-section").style.display = "block";
-                document.getElementById("verify-context-section").style.display = "block";
+                document.getElementById("sign-context-section").style.display = "flex";
+                document.getElementById("verify-context-section").style.display = "flex";
             }
         }
 
@@ -285,6 +301,19 @@
         updateLabels(selectedAlgorithm.value);
         selectedAlgorithm.addEventListener("change", () => {
             updateLabels(selectedAlgorithm.value);
+        });
+
+        // Copy to clipboard functionality
+        document.querySelectorAll(".copy-button").forEach(button => {
+            button.onclick = async () => {
+                const target = document.getElementById(button.dataset.copyTarget);
+                await navigator.clipboard.writeText(target.value);
+                const oldText = button.textContent;
+                button.textContent = "✓ Copied!";
+                setTimeout(() => {
+                    button.textContent = oldText;
+                }, 1500);
+            };
         });
     </script>
 
