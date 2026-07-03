@@ -3,11 +3,11 @@
 > Interactive browser-based playgrounds for exploring **EdDSA** and **FROST threshold signatures**, powered by **PyScript** and running entirely in the browser.
 
 <p align="center">
-  <a href="./playground-eddsa.html">
+  <a href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-eddsa.html">
     <img alt="EdDSA Playground" src="https://img.shields.io/badge/Launch-EdDSA%20Playground-2563eb?style=for-the-badge">
   </a>
   &nbsp;
-  <a href="./playground-frost.html">
+  <a href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-frost.html">
     <img alt="FROST Playground" src="https://img.shields.io/badge/Launch-FROST%20Playground-16a34a?style=for-the-badge">
   </a>
 </p>
@@ -47,10 +47,9 @@ Features:
 
 - Create threshold groups
 - Generate secret shares
-- Simulate signing rounds
+- Simulate signing rounds (you are in control of all participants)
 - Aggregate partial signatures
 - Verify the final signature
-- Step through the FROST protocol
 
 ➡️ **Open:** [playground-frost.html](./playground-frost.html)
 
