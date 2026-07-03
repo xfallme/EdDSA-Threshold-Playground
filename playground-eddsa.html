@@ -140,7 +140,69 @@
     </section>
 
     <section id="verify" class="tab" hidden>
-        <h2>Verification</h2>
+        <div class="card">
+            <h2>Verification</h2>
+
+            <div class="form-group">
+                <label for="verify-use-existing-key">Use Existing Key from the Key Generation Tab</label>
+                <input type="checkbox" id="verify-use-existing-key" />
+
+                <div id="verify-public-key-section">
+                    <label for="verify-public-key-format">Public Key Format</label>
+                    <select id="verify-public-key-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+
+                    <label id="verify-public-key-label" for="verify-public-key">Public Key</label>
+                    <textarea id="verify-public-key" rows="3" spellcheck="false"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="verify-message-format">Message Format</label>
+                <select id="verify-message-format">
+                    <option value="text">Text</option>
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String</option>
+                </select>
+
+                <label for="verify-message">Message</label>
+                <textarea id="verify-message" rows="5" spellcheck="false"></textarea>
+            </div>
+
+            <div id="verify-context-section" class="form-group" hidden>
+                <label for="verify-context-format">Context Format</label>
+                <select id="verify-context-format">
+                    <option value="text">Text</option>
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
+
+                <label for="verify-context">Context</label>
+                <textarea id="verify-context" rows="5" spellcheck="false"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="verify-signature-format">Signature Format</label>
+                <select id="verify-signature-format">
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String</option>
+                </select>
+
+                <label id="verify-signature-label" for="verify-signature">Signature</label>
+                <textarea id="verify-signature" rows="3" spellcheck="false"></textarea>
+            </div>
+
+            <div class="button-row">
+                <button id="verify-button">Verify</button>
+                <button id="clear-verify-button" type="button">Clear</button>
+            </div>
+        </div>
 
         <div id="verify-status" class="status-box success" hidden></div>
     </section>
@@ -171,14 +233,24 @@
             signPrivateKeySection.hidden = useExistingKey;
         });
 
+        const verifyUseExistingKeyCheckbox = document.getElementById("verify-use-existing-key");
+        const verifyPublicKeySection = document.getElementById("verify-public-key-section");
+
+        verifyUseExistingKeyCheckbox.addEventListener("change", () => {
+            const useExistingKey = verifyUseExistingKeyCheckbox.checked;
+            verifyPublicKeySection.hidden = useExistingKey;
+        });
+
         // Show/hide context section based on selected algorithm
         const selectedAlgorithm = document.getElementById("algorithm");
 
         function updateVisibility(algorithm) {
             if (algorithm === "ed25519" || algorithm === "ed25519ph") {
                 document.getElementById("sign-context-section").style.display = "none";
+                document.getElementById("verify-context-section").style.display = "none";
             } else {
                 document.getElementById("sign-context-section").style.display = "block";
+                document.getElementById("verify-context-section").style.display = "block";
             }
         }
 
@@ -192,15 +264,21 @@
             const privateKeyLabelKeygen = document.getElementById("private-key-output-label");
             const publicKeyLabelKeygen = document.getElementById("public-key-output-label");
             const privateKeyLabelSign = document.getElementById("sign-private-key-label");
+            const publicKeyLabelVerify = document.getElementById("verify-public-key-label");
+            const signatureLabelVerify = document.getElementById("verify-signature-label");
 
             if (algorithm.startsWith("ed25519")) {
                 privateKeyLabelKeygen.textContent = "Private Key (32 bytes)";
                 publicKeyLabelKeygen.textContent = "Public Key (32 bytes)";
                 privateKeyLabelSign.textContent = "Private Key (32 bytes)";
+                publicKeyLabelVerify.textContent = "Public Key (32 bytes)";
+                signatureLabelVerify.textContent = "Signature (64 bytes)";
             } else if (algorithm.startsWith("ed448")) {
                 privateKeyLabelKeygen.textContent = "Private Key (57 bytes)";
                 publicKeyLabelKeygen.textContent = "Public Key (57 bytes)";
                 privateKeyLabelSign.textContent = "Private Key (57 bytes)";
+                publicKeyLabelVerify.textContent = "Public Key (57 bytes)";
+                signatureLabelVerify.textContent = "Signature (114 bytes)";
             }
         }
 

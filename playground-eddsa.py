@@ -37,9 +37,10 @@ def update_algorithm_info():
 
     print("ready to use algorithm class:", algorithm_cls.__name__,
           "and keypair class:", keypair_cls.__name__)
-    
+
     clear_keypair()
     clear_sign()
+    clear_verify()
 
 
 @when("click", "#generate-keypair-button")
@@ -70,12 +71,13 @@ def clear_keypair():
 def sign_message():
     global algorithm_cls
     global keypair
-    
+
     active_keypair = None
-    
+
     if web.page["sign-use-existing-key"].checked:
         if keypair is None:
-            set_status("sign-status", "No keypair generated yet. Please generate a keypair first.", "error")
+            set_status(
+                "sign-status", "No keypair generated yet. Please generate a keypair first.", "error")
             return
         active_keypair = keypair
     else:
@@ -87,7 +89,7 @@ def sign_message():
             return
 
     message = get_bytes_from_input("sign-message")
-    
+
     selected_algorithm = ''.join(web.page["algorithm"].value)
     if selected_algorithm in ["ed25519", "ed25519ph"]:
         # without context
@@ -107,8 +109,55 @@ def clear_sign():
     web.page["sign-message"].value = ""
     web.page["sign-context"].value = ""
     web.page["sign-use-existing-key"].checked = False
+    web.page["sign-private-key-section"].hidden = False
     web.page["sign-signature-output"].value = ""
     web.page["sign-status"].hidden = True
+
+
+@when("click", "#verify-button")
+def verify_signature():
+    global algorithm_cls
+    global keypair
+
+    public_key = None
+
+    if web.page["verify-use-existing-key"].checked:
+        if keypair is None:
+            set_status(
+                "verify-status", "No keypair generated yet. Please generate a keypair first.", "error")
+            return
+        public_key = keypair.public_bytes
+    else:
+        public_key = get_bytes_from_input("verify-public-key")
+
+    message = get_bytes_from_input("verify-message")
+    signature = get_bytes_from_input("verify-signature")
+
+    selected_algorithm = ''.join(web.page["algorithm"].value)
+    if selected_algorithm in ["ed25519", "ed25519ph"]:
+        # without context
+        is_valid = algorithm_cls.verify(signature, message, public_key)
+    else:
+        # with context
+        context = get_bytes_from_input("verify-context")
+        is_valid = algorithm_cls.verify(
+            signature, message, public_key, context)
+
+    if is_valid:
+        set_status("verify-status", "Signature is valid.", "success")
+    else:
+        set_status("verify-status", "Signature is invalid.", "error")
+
+
+@when("click", "#clear-verify-button")
+def clear_verify():
+    web.page["verify-public-key"].value = ""
+    web.page["verify-message"].value = ""
+    web.page["verify-signature"].value = ""
+    web.page["verify-context"].value = ""
+    web.page["verify-use-existing-key"].checked = False
+    web.page["verify-public-key-section"].hidden = False
+    web.page["verify-status"].hidden = True
 
 
 # Initialize algorithm and keypair classes on page load (set correct labels and placeholders)
@@ -116,3 +165,4 @@ update_algorithm_info()
 # clear fields because the variables are not initialized yet
 clear_keypair()
 clear_sign()
+clear_verify()
