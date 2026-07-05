@@ -308,6 +308,7 @@
         function updateLabels(algorithm) {
             const privateKeyLabelKeygen = document.getElementById("private-key-output-label");
             const publicKeyLabelKeygen = document.getElementById("public-key-output-label");
+            const existingKeyLabelKeygen = document.getElementById("keygen-existing-key-label");
             const privateKeyLabelSign = document.getElementById("sign-private-key-label");
             const publicKeyLabelVerify = document.getElementById("verify-public-key-label");
             const signatureLabelVerify = document.getElementById("verify-signature-label");
@@ -315,12 +316,14 @@
             if (algorithm.startsWith("ed25519")) {
                 privateKeyLabelKeygen.textContent = "Private Key (32 bytes)";
                 publicKeyLabelKeygen.textContent = "Public Key (32 bytes)";
+                existingKeyLabelKeygen.textContent = "Private Key (32 bytes)";
                 privateKeyLabelSign.textContent = "Private Key (32 bytes)";
                 publicKeyLabelVerify.textContent = "Public Key (32 bytes)";
                 signatureLabelVerify.textContent = "Signature (64 bytes)";
             } else if (algorithm.startsWith("ed448")) {
                 privateKeyLabelKeygen.textContent = "Private Key (57 bytes)";
                 publicKeyLabelKeygen.textContent = "Public Key (57 bytes)";
+                existingKeyLabelKeygen.textContent = "Private Key (57 bytes)";
                 privateKeyLabelSign.textContent = "Private Key (57 bytes)";
                 publicKeyLabelVerify.textContent = "Public Key (57 bytes)";
                 signatureLabelVerify.textContent = "Signature (114 bytes)";
