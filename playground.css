@@ -1,3 +1,14 @@
+:root {
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+
+    --bg: #eef2f8;
+    --card: #ffffff;
+
+    --border: #e5e7eb;
+    --text: #1f2937;
+}
+
 *,
 *::before,
 *::after {
@@ -11,36 +22,45 @@ header {
     margin-bottom: 2rem;
 }
 
+/* Body */
 body {
     font-family: Inter, system-ui, sans-serif;
     background: var(--bg);
-    color: #222;
+    color: var(--text);
     max-width: 1000px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
 
-:root {
-    --accent: #2563eb;
-    --bg: #f5f7fb;
-    --card: white;
-    --border: #d9d9d9;
-}
-
+/* Cards and layout */
 .card {
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
+    padding: 2rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    border: none;
+    border-radius: 16px;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / .04),
+        0 8px 24px rgb(0 0 0 / .05);
+    animation: fade .25s ease;
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: .5rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group:last-child {
@@ -70,13 +90,9 @@ body {
     white-space: nowrap;
 }
 
-h1 {
-    margin-bottom: .25rem;
-}
-
 h2 {
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 label {
@@ -84,58 +100,64 @@ label {
     margin-top: .5rem;
 }
 
+/* Form controls */
+button,
+input,
 select,
-textarea,
-input {
+textarea {
+    font: inherit;
+    border-radius: 8px;
+    transition: .2s ease;
+}
+
+input,
+select,
+textarea {
     width: 100%;
     padding: .75rem;
-    font: inherit;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    box-sizing: border-box;
+    background: white;
 }
 
+input:focus,
 select:focus,
-textarea:focus,
-input:focus {
+textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37,99,235,.15);
-}
-
-button,
-textarea,
-select,
-input {
-    transition:
-        background .15s,
-        border-color .15s,
-        box-shadow .15s;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / .15);
 }
 
 textarea {
+    overflow-wrap: anywhere;
     resize: vertical;
     font-family:
         "JetBrains Mono",
-        Consolas,
+        ui-monospace,
         monospace;
+    font-size: .92rem;
+    line-height: 1.5;
     min-height: 6rem;
 }
 
+textarea:disabled {
+    background: #f8fafc;
+    color: #555;
+}
+
 button {
-    cursor: pointer;
-    border: 1px solid var(--border);
-    border-radius: 8px;
     background: white;
-    transition: .15s;
+    border: 1px solid var(--border);
+    padding: .75rem 1.2rem;
+    font-weight: 600;
 }
 
 button:hover {
-    background: #f4f4f4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgb(0 0 0 / .08);
 }
 
 button:active {
-    transform: scale(.95);
+    transform: scale(.98);
 }
 
 button.primary {
@@ -150,29 +172,30 @@ button.primary:hover {
 
 .copy-button {
     align-self: flex-end;
-    padding: .35rem .8rem;
-    font-size: .85rem;
+    padding: .4rem .8rem;
+    font-size: .8rem;
+    border-radius: 999px;
 }
 
+/* Tabs */
 .tabs {
-    display: flex;
-    gap: 1rem;
-    margin: 1.5rem;
-    justify-content: center;
+    display: inline-flex;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .3rem;
+    gap: .25rem;
+    margin: 0 auto 2rem;
 }
 
 .tabs button {
-    padding: .75rem 1.5rem;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background: white;
-    cursor: pointer;
+    border: none;
+    background: transparent;
 }
 
 .tab-button.active {
     background: var(--accent);
     color: white;
-    border-color: var(--accent);
 }
 
 .button-row {
@@ -184,6 +207,7 @@ button.primary:hover {
     padding: .75rem 1.5rem;
 }
 
+/* Status boxes */
 .status-box {
     margin-top: 1rem;
     padding: 0.9rem 1rem;
