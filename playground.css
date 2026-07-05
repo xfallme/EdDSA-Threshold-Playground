@@ -47,6 +47,29 @@ body {
     margin-bottom: 0;
 }
 
+.format-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 0.75rem 1rem;
+    align-items: center;
+}
+
+.format-row label {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.inline-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.inline-field label {
+    margin: 0;
+    white-space: nowrap;
+}
+
 h1 {
     margin-bottom: .25rem;
 }

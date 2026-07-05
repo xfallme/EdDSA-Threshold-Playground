@@ -39,12 +39,14 @@
             <h2>Key Generation</h2>
 
             <div class="form-group">
-                <label for="keygen-output-format">Output Format</label>
-                <select id="keygen-output-format">
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String (b'...')</option>
-                </select>
+                <div class="inline-field">
+                    <label for="keygen-output-format">Output Format</label>
+                    <select id="keygen-output-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
             </div>
 
             <div class="button-row">
@@ -56,7 +58,7 @@
         <div class="card">
             <h2>From Private Key</h2>
 
-            <div class="form-group">
+            <div class="form-group format-row">
                 <label for="keygen-existing-key-format">Input Format</label>
                 <select id="keygen-existing-key-format">
                     <option value="hex">Hex</option>
@@ -70,7 +72,9 @@
                     <option value="base64">Base64</option>
                     <option value="python">Python Byte String (b'...')</option>
                 </select>
+            </div>
 
+            <div class="form-group">
                 <label id="keygen-existing-key-label" for="keygen-existing-key">Private Key</label>
                 <textarea id="keygen-existing-key" rows="3" spellcheck="false"
                     placeholder="Enter private key..."></textarea>
@@ -103,57 +107,65 @@
             <h2>Signing</h2>
 
             <div class="form-group">
-                <label for="sign-use-existing-key">Use Existing Key from the Key Generation Tab</label>
-                <input type="checkbox" id="sign-use-existing-key" checked />
+                <div class="inline-field">
+                    <label for="sign-use-existing-key">Use Existing Key from the Key Generation Tab</label>
+                    <input type="checkbox" id="sign-use-existing-key" checked />
+                </div>
             </div>
 
             <div id="sign-private-key-section" class="form-group">
-                <label for="sign-private-key-format">Private Key Format</label>
-                <select id="sign-private-key-format">
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String (b'...')</option>
-                </select>
-
+                <div class="inline-field">
+                    <label for="sign-private-key-format">Private Key Format</label>
+                    <select id="sign-private-key-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
                 <label id="sign-private-key-label" for="sign-private-key">Private Key</label>
                 <textarea id="sign-private-key" rows="3" spellcheck="false"
                     placeholder="Enter private key..."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="sign-message-format">Message Format</label>
-                <select id="sign-message-format">
-                    <option value="text">Text</option>
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String (b'...')</option>
-                </select>
-
+                <div class="inline-field">
+                    <label for="sign-message-format">Message Format</label>
+                    <select id="sign-message-format">
+                        <option value="text">Text</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
                 <label for="sign-message">Message</label>
                 <textarea id="sign-message" rows="5" spellcheck="false"
                     placeholder="Enter message to sign..."></textarea>
             </div>
 
             <div id="sign-context-section" class="form-group">
-                <label for="sign-context-format">Context Format</label>
-                <select id="sign-context-format">
-                    <option value="text">Text</option>
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String (b'...')</option>
-                </select>
+                <div class="inline-field">
+                    <label for="sign-context-format">Context Format</label>
+                    <select id="sign-context-format">
+                        <option value="text">Text</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
 
                 <label for="sign-context">Context</label>
                 <textarea id="sign-context" rows="5" spellcheck="false" placeholder="Enter context..."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="sign-signature-output-format">Signature Format</label>
-                <select id="sign-signature-output-format">
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String (b'...')</option>
-                </select>
+                <div class="inline-field">
+                    <label for="sign-signature-output-format">Signature Format</label>
+                    <select id="sign-signature-output-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
             </div>
 
             <div class="button-row">
@@ -178,17 +190,21 @@
             <h2>Verification</h2>
 
             <div class="form-group">
-                <label for="verify-use-existing-key">Use Existing Key from the Key Generation Tab</label>
-                <input type="checkbox" id="verify-use-existing-key" />
+                <div class="inline-field">
+                    <label for="verify-use-existing-key">Use Existing Key from the Key Generation Tab</label>
+                    <input type="checkbox" id="verify-use-existing-key" />
+                </div>
             </div>
 
             <div id="verify-public-key-section" class="form-group">
-                <label for="verify-public-key-format">Public Key Format</label>
-                <select id="verify-public-key-format">
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String</option>
-                </select>
+                <div class="inline-field">
+                    <label for="verify-public-key-format">Public Key Format</label>
+                    <select id="verify-public-key-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+                </div>
 
                 <label id="verify-public-key-label" for="verify-public-key">Public Key</label>
                 <textarea id="verify-public-key" rows="3" spellcheck="false"
@@ -196,40 +212,44 @@
             </div>
 
             <div class="form-group">
-                <label for="verify-message-format">Message Format</label>
-                <select id="verify-message-format">
-                    <option value="text">Text</option>
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String</option>
-                </select>
-
+                <div class="inline-field">
+                    <label for="verify-message-format">Message Format</label>
+                    <select id="verify-message-format">
+                        <option value="text">Text</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+                </div>
                 <label for="verify-message">Message</label>
                 <textarea id="verify-message" rows="5" spellcheck="false"
                     placeholder="Enter message to verify..."></textarea>
             </div>
 
             <div id="verify-context-section" class="form-group">
-                <label for="verify-context-format">Context Format</label>
-                <select id="verify-context-format">
-                    <option value="text">Text</option>
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String (b'...')</option>
-                </select>
+                <div class="inline-field">
+                    <label for="verify-context-format">Context Format</label>
+                    <select id="verify-context-format">
+                        <option value="text">Text</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
 
                 <label for="verify-context">Context</label>
                 <textarea id="verify-context" rows="5" spellcheck="false" placeholder="Enter context..."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="verify-signature-format">Signature Format</label>
-                <select id="verify-signature-format">
-                    <option value="hex">Hex</option>
-                    <option value="base64">Base64</option>
-                    <option value="python">Python Byte String</option>
-                </select>
-
+                <div class="inline-field">
+                    <label for="verify-signature-format">Signature Format</label>
+                    <select id="verify-signature-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+                </div>
                 <label id="verify-signature-label" for="verify-signature">Signature</label>
                 <textarea id="verify-signature" rows="3" spellcheck="false"
                     placeholder="Enter signature to verify..."></textarea>
