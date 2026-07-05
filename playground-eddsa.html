@@ -14,18 +14,24 @@
 </head>
 
 <body>
-    <header>
+    <header class="hero">
+        <h1>🔐 EdDSA Playground</h1>
 
-        <h1 style="text-align: center">🔐 EdDSA Playground</h1>
+        <p class="hero-subtitle">
+            Generate, sign, and verify messages using
+            <strong>Ed25519</strong> and <strong>Ed448</strong>.
+        </p>
 
-        <select id="algorithm">
-            <option value="ed25519">Ed25519</option>
-            <option value="ed25519ph">Ed25519 Prehash</option>
-            <option value="ed25519ctx">Ed25519 Context</option>
-            <option value="ed448">Ed448</option>
-            <option value="ed448ph">Ed448 Prehash</option>
-        </select>
-
+        <div class="hero-controls">
+            <label for="algorithm">Algorithm</label>
+            <select id="algorithm">
+                <option value="ed25519">Ed25519</option>
+                <option value="ed25519ph">Ed25519 Prehash</option>
+                <option value="ed25519ctx">Ed25519 Context</option>
+                <option value="ed448">Ed448</option>
+                <option value="ed448ph">Ed448 Prehash</option>
+            </select>
+        </div>
     </header>
 
     <nav class="tabs">

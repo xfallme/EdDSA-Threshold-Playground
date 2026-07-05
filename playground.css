@@ -15,11 +15,44 @@
     box-sizing: border-box;
 }
 
-header {
+/* Hero section */
+.hero {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    gap: .75rem;
     margin-bottom: 2rem;
+    text-align: center;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: 2.25rem;
+}
+
+.hero-subtitle {
+    margin: 0;
+    color: #6b7280;
+    font-size: 1rem;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.hero-controls {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .75rem;
+}
+
+.hero-controls label {
+    margin: 0;
+    font-weight: 600;
+}
+
+.hero-controls select {
+    width: auto;
+    min-width: 220px;
 }
 
 /* Body */
