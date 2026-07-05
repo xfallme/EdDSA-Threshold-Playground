@@ -11,7 +11,7 @@ from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 from eddsa_threshold.eddsa.algorithms.ed448ph import Ed448PH
 from eddsa_threshold.eddsa.keys.ed448_keypair import Ed448Keypair
 
-from util import get_bytes_from_input, set_output, set_output_format_override, set_status
+from util import UserAbort, get_bytes_from_input, set_output, set_output_format_override, set_status
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519, Ed25519Keypair),
@@ -75,16 +75,20 @@ def derive_keypair():
 
     status_element = "keygen-status"
 
-    private_key_input = get_bytes_from_input(
-        "keygen-existing-private-key", status_element)
     try:
+        private_key_input = get_bytes_from_input(
+            "keygen-existing-key", status_element)
+
         keypair = keypair_cls.from_private_bytes(private_key_input)
         set_output_format_override(
-            "private-key-output", "keygen-existing-output-format", keypair.private_bytes)
+            "private-key-output", "keygen-existing-key-output-format", keypair.private_bytes)
         set_output_format_override(
-            "public-key-output", "keygen-existing-output-format", keypair.public_bytes)
+            "public-key-output", "keygen-existing-key-output-format", keypair.public_bytes)
         set_status(status_element,
                    "Keypair derived successfully. It is now stored and ready to use in the other tabs.", "success")
+    except UserAbort:
+        # already handled
+        pass
     except ValueError as e:
         set_status(status_element, f"Invalid private key: {e}", "error")
 
@@ -92,7 +96,7 @@ def derive_keypair():
 @when("click", "#clear-existing-keypair-button")
 def clear_existing_keypair():
     clear_keypair()
-    web.page["keygen-existing-private-key"].value = ""
+    web.page["keygen-existing-key"].value = ""
 
 
 @when("click", "#sign-button")
@@ -111,27 +115,34 @@ def sign_message():
             return
         active_keypair = keypair
     else:
-        private_key_input = get_bytes_from_input(
-            "sign-private-key", status_element)
         try:
+            private_key_input = get_bytes_from_input(
+                "sign-private-key", status_element)
             active_keypair = keypair_cls.from_private_bytes(private_key_input)
+        except UserAbort:
+            # already handled
+            return
         except ValueError as e:
             set_status(status_element, f"Invalid private key: {e}", "error")
             return
 
-    message = get_bytes_from_input("sign-message", status_element)
+    try:
+        message = get_bytes_from_input("sign-message", status_element)
 
-    selected_algorithm = ''.join(web.page["algorithm"].value)
-    if selected_algorithm in ["ed25519", "ed25519ph"]:
-        # without context
-        signature = algorithm_cls.sign(message, active_keypair)
-    else:
-        # with context
-        context = get_bytes_from_input("sign-context", status_element)
-        signature = algorithm_cls.sign(message, active_keypair, context)
+        selected_algorithm = ''.join(web.page["algorithm"].value)
+        if selected_algorithm in ["ed25519", "ed25519ph"]:
+            # without context
+            signature = algorithm_cls.sign(message, active_keypair)
+        else:
+            # with context
+            context = get_bytes_from_input("sign-context", status_element)
+            signature = algorithm_cls.sign(message, active_keypair, context)
 
-    set_output("sign-signature-output", signature)
-    set_status("sign-status", "Message signed successfully.", "success")
+        set_output("sign-signature-output", signature)
+        set_status("sign-status", "Message signed successfully.", "success")
+    except UserAbort:
+        # already handled
+        pass
 
 
 @when("click", "#clear-sign-button")
@@ -154,32 +165,36 @@ def verify_signature():
 
     public_key = None
 
-    if web.page["verify-use-existing-key"].checked:
-        if keypair is None:
-            set_status(
-                "verify-status", "No keypair generated yet. Please generate a keypair first.", "error")
-            return
-        public_key = keypair.public_bytes
-    else:
-        public_key = get_bytes_from_input("verify-public-key", status_element)
+    try:
+        if web.page["verify-use-existing-key"].checked:
+            if keypair is None:
+                set_status(
+                    "verify-status", "No keypair generated yet. Please generate a keypair first.", "error")
+                return
+            public_key = keypair.public_bytes
+        else:
+            public_key = get_bytes_from_input("verify-public-key", status_element)
 
-    message = get_bytes_from_input("verify-message", status_element)
-    signature = get_bytes_from_input("verify-signature", status_element)
+        message = get_bytes_from_input("verify-message", status_element)
+        signature = get_bytes_from_input("verify-signature", status_element)
 
-    selected_algorithm = ''.join(web.page["algorithm"].value)
-    if selected_algorithm in ["ed25519", "ed25519ph"]:
-        # without context
-        is_valid = algorithm_cls.verify(signature, message, public_key)
-    else:
-        # with context
-        context = get_bytes_from_input("verify-context", status_element)
-        is_valid = algorithm_cls.verify(
-            signature, message, public_key, context)
+        selected_algorithm = ''.join(web.page["algorithm"].value)
+        if selected_algorithm in ["ed25519", "ed25519ph"]:
+            # without context
+            is_valid = algorithm_cls.verify(signature, message, public_key)
+        else:
+            # with context
+            context = get_bytes_from_input("verify-context", status_element)
+            is_valid = algorithm_cls.verify(
+                signature, message, public_key, context)
 
-    if is_valid:
-        set_status("verify-status", "Signature is valid.", "success")
-    else:
-        set_status("verify-status", "Signature is invalid.", "error")
+        if is_valid:
+            set_status("verify-status", "Signature is valid.", "success")
+        else:
+            set_status("verify-status", "Signature is invalid.", "error")
+    except UserAbort:
+        # already handled
+        pass
 
 
 @when("click", "#clear-verify-button")

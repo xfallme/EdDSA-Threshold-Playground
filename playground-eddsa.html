@@ -57,15 +57,22 @@
             <h2>From Private Key</h2>
 
             <div class="form-group">
-                <label for="keygen-existing-private-key-format">Output Format</label>
-                <select id="keygen-existing-private-key-format">
+                <label for="keygen-existing-key-format">Input Format</label>
+                <select id="keygen-existing-key-format">
                     <option value="hex">Hex</option>
                     <option value="base64">Base64</option>
                     <option value="python">Python Byte String (b'...')</option>
                 </select>
 
-                <label id="keygen-existing-private-key-label" for="keygen-existing-private-key">Private Key</label>
-                <textarea id="keygen-existing-private-key" rows="3" spellcheck="false"
+                <label for="keygen-existing-key-output-format">Output Format</label>
+                <select id="keygen-existing-key-output-format">
+                    <option value="hex">Hex</option>
+                    <option value="base64">Base64</option>
+                    <option value="python">Python Byte String (b'...')</option>
+                </select>
+
+                <label id="keygen-existing-key-label" for="keygen-existing-key">Private Key</label>
+                <textarea id="keygen-existing-key" rows="3" spellcheck="false"
                     placeholder="Enter private key..."></textarea>
             </div>
 
