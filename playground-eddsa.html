@@ -272,21 +272,8 @@
 
     <script type="py" src="./playground-eddsa.py" config="./pyscript.json"></script>
 
+    <script src="./util.js"></script>
     <script>
-        // Tab switching logic
-        const buttons = document.querySelectorAll(".tab-button");
-        const tabs = document.querySelectorAll(".tab");
-
-        buttons.forEach(button => {
-            button.onclick = () => {
-                tabs.forEach(tab => tab.hidden = true);
-                buttons.forEach(btn => btn.classList.remove("active"));
-
-                document.getElementById(button.dataset.tab).hidden = false;
-                button.classList.add("active");
-            };
-        });
-
         // Show/hide private key section based on checkbox
         const signUseExistingKeyCheckbox = document.getElementById("sign-use-existing-key");
         const signPrivateKeySection = document.getElementById("sign-private-key-section");
@@ -359,19 +346,6 @@
         updateLabels(selectedAlgorithm.value);
         selectedAlgorithm.addEventListener("change", () => {
             updateLabels(selectedAlgorithm.value);
-        });
-
-        // Copy to clipboard functionality
-        document.querySelectorAll(".copy-button").forEach(button => {
-            button.onclick = async () => {
-                const target = document.getElementById(button.dataset.copyTarget);
-                await navigator.clipboard.writeText(target.value);
-                const oldText = button.textContent;
-                button.textContent = "✓ Copied!";
-                setTimeout(() => {
-                    button.textContent = oldText;
-                }, 1500);
-            };
         });
     </script>
 
