@@ -1,6 +1,7 @@
 :root {
     --accent: #2563eb;
     --accent-light: #dbeafe;
+    --danger: #c71919;
     --bg: #eef2f8;
     --card: #ffffff;
     --border: #e5e7eb;
@@ -177,7 +178,14 @@ button.primary {
     border: none;
 }
 
-button.primary:hover {
+button.danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+}
+
+button.primary:hover,
+button.danger:hover {
     filter: brightness(.95);
 }
 

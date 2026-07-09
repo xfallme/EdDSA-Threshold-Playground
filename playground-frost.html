@@ -2,51 +2,135 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work in Progress</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Inter, system-ui, sans-serif;
-            background: #f5f7fb;
-            color: #222;
+    <title>FROST Playground</title>
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+    <link rel="stylesheet" href="https://pyscript.net/releases/2026.6.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2026.6.1/core.js"></script>
 
-            height: 100vh;
-        }
-
-        .card {
-            background: white;
-            padding: 3rem 4rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-
-        h1 {
-            margin: 0 0 0.5rem;
-            font-size: 3rem;
-        }
-
-        p {
-            margin: 0;
-            color: #666;
-            font-size: 1.1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="./playground.css" />
 </head>
 
 <body>
+    <header class="hero">
+        <h1>👥 FROST Playground</h1>
 
-    <div class="card">
-        <h1>🚧 Work in Progress</h1>
-        <p>This playground is currently under construction.</p>
-    </div>
+        <p class="hero-subtitle">
+            Generate group secrets, sign, and verify messages using <strong>Ed25519</strong> and <strong>Ed448</strong>
+            in a
+            Multi-Party Setting.
+        </p>
+
+        <div class="hero-controls">
+            <label for="algorithm">Algorithm</label>
+            <select id="algorithm">
+                <option value="ed25519">Ed25519</option>
+                <option value="ed448">Ed448</option>
+            </select>
+        </div>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab-button active" data-tab="dealer"> Trusted Dealer</button>
+        <button class="tab-button" data-tab="coordinator">Coordinator</button>
+        <button class="tab-button" data-tab="participants">Participants</button>
+        <button class="tab-button" data-tab="verify">Verification (Normal EdDSA)</button>
+    </nav>
+
+    <section id="dealer" class="tab">
+        <div class="card">
+            <h2>Threshold Parameters</h2>
+
+            <div class="form-group format-row">
+                <label for="participant-count">Participants</label>
+                <input id="participant-count" type="number" min="1" value="3">
+
+                <label for="threshold">Threshold</label>
+                <input id="threshold" type="number" min="1" value="2">
+            </div>
+
+            <div class="form-group">
+                <div class="inline-field">
+                    <label for="dealer-use-existing-secret">Generate random group secret</label>
+                    <input type="checkbox" id="dealer-use-existing-secret" checked />
+                </div>
+            </div>
+
+            <div id="dealer-existing-secret-section" class="form-group" style="display: none;">
+                <div class="inline-field">
+                    <label for="dealer-existing-secret-format">Secret Format</label>
+                    <select id="dealer-existing-secret-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
+                <label id="dealer-existing-secret-label" for="dealer-existing-secret">Group Secret</label>
+                <textarea id="dealer-existing-secret" rows="3" spellcheck="false"
+                    placeholder="Enter group secret..."></textarea>
+            </div>
+
+            <div class="button-row">
+                <button id="dealer-generate-button" class="primary">Generate Shares</button>
+                <button id="dealer-clear-button">Clear Inputs</button>
+                <button id="dealer-clear-all-button" class="danger">Clear All</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Group Information</h2>
+
+            <div class="form-group">
+                <label id="group-public-key-label" for="group-public-key">Group Public Key</label>
+                <textarea id="group-public-key" rows="3" disabled placeholder="Group public key will appear here..."></textarea>
+                <button class="copy-button" data-copy-target="group-public-key">📋 Copy</button>
+            </div>
+
+            <div id="dealer-status" class="status-box info" hidden></div>
+        </div>
+    </section>
+
+    <section id="coordinator" class="tab" hidden></section>
+
+    <section id="participants" class="tab" hidden></section>
+    
+    <section id="verify" class="tab" hidden></section>
+
+    <script src="./util.js"></script>
+    <script>
+        // Show/hide private key section based on checkbox
+        const dealerUseExistingSecretCheckbox = document.getElementById("dealer-use-existing-secret");
+        const dealerExistingSecretSection = document.getElementById("dealer-existing-secret-section");
+
+        dealerUseExistingSecretCheckbox.addEventListener("change", () => {
+            const useExistingSecret = dealerUseExistingSecretCheckbox.checked;
+            if (useExistingSecret) {
+                dealerExistingSecretSection.style.display = "none";
+            } else {
+                dealerExistingSecretSection.style.display = "flex";
+            }
+        });
+
+        // Update labels based on selected algorithm and run it once on page load
+        const selectedAlgorithm = document.getElementById("algorithm");
+
+        function updateLabels(algorithm) {
+            const groupPublicKeyLabel = document.getElementById("group-public-key-label");
+
+            if (algorithm === "ed25519") {
+                groupPublicKeyLabel.textContent = "Group Public Key (32 bytes)";
+            } else if (algorithm === "ed448") {
+                groupPublicKeyLabel.textContent = "Group Public Key (57 bytes)";
+            }
+        }
+
+        updateLabels(selectedAlgorithm.value);
+        selectedAlgorithm.addEventListener("change", () => {
+            updateLabels(selectedAlgorithm.value);
+        });
+    </script>
 
 </body>
 
