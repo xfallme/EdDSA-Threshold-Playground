@@ -118,9 +118,15 @@
             </div>
         </div>
 
+        <div id="coordinator-sessions-container"></div>
+
         <template id="coordinator-session-template">
-            <div class="card">
-                <h2>Signing Session {session_id}</h2>
+            <details class="card session-card">
+                <summary>
+                    <span class="session-title">
+                        Signing Session {session_id}
+                    </span>
+                </summary>
 
                 <div class="form-group">
                     <label for="coordinator-session-id-{short_id}">Session ID</label>
@@ -194,8 +200,7 @@
                 </div>
 
                 <div id="coordinator-session-status-{short_id}" class="status-box info" hidden></div>
-
-            </div>
+            </details>
         </template>
 
         <div id="coordinator-status" class="status-box info" hidden></div>
@@ -204,6 +209,8 @@
     <section id="participants" class="tab" hidden></section>
 
     <section id="verify" class="tab" hidden></section>
+
+    <script type="py" src="./playground-frost.py" config="./pyscript.json"></script>
 
     <script src="./util.js"></script>
     <script>

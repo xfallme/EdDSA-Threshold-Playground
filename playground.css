@@ -265,6 +265,32 @@ button.danger:hover {
 }
 
 /* Sessions */
+.session-card > summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+}
+
+.session-card > summary::before {
+    content: "▶";
+    margin-right: 0.75rem;
+    transition: transform 0.2s;
+}
+
+.session-card[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.session-card > summary h2 {
+    margin: 0;
+}
+
+.session-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
 hr {
     color: var(--border);
 }
