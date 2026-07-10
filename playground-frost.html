@@ -84,7 +84,8 @@
 
             <div class="form-group">
                 <label id="group-public-key-label" for="group-public-key">Group Public Key</label>
-                <textarea id="group-public-key" rows="3" disabled placeholder="Group public key will appear here..."></textarea>
+                <textarea id="group-public-key" rows="3" disabled
+                    placeholder="Group public key will appear here..."></textarea>
                 <button class="copy-button" data-copy-target="group-public-key">📋 Copy</button>
             </div>
 
@@ -92,10 +93,116 @@
         </div>
     </section>
 
-    <section id="coordinator" class="tab" hidden></section>
+    <section id="coordinator" class="tab" hidden>
+        <div class="card">
+            <h2>Create Signing Session</h2>
+            <div class="form-group">
+                <div class="inline-field">
+                    <label for="coordinator-message-format">Message Format</label>
+                    <select id="coordinator-message-format">
+                        <option value="text">Text</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
+
+                <label for="coordinator-message">Message</label>
+                <textarea id="coordinator-message" rows="4" spellcheck="false"
+                    placeholder="Enter message..."></textarea>
+            </div>
+
+            <div class="button-row">
+                <button id="coordinator-create-package-button" class="primary">Create Signing Session</button>
+                <button id="coordinator-clear-button">Clear Input</button>
+            </div>
+        </div>
+
+        <template id="coordinator-session-template">
+            <div class="card">
+                <h2>Signing Session {session_id}</h2>
+
+                <div class="form-group">
+                    <label for="coordinator-session-id-{short_id}">Session ID</label>
+                    <textarea id="coordinator-session-id-{short_id}" rows="1" disabled spellcheck="false"
+                        placeholder="Session ID will appear here..."></textarea>
+                    <button class="copy-button" data-copy-target="coordinator-session-id-{short_id}">📋 Copy</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="coordinator-session-message-{short_id}">Message</label>
+                    <textarea id="coordinator-session-message-{short_id}" rows="1" disabled spellcheck="false"
+                        placeholder="Message will appear here..."></textarea>
+                    <button class="copy-button" data-copy-target="coordinator-session-message-{short_id}">📋
+                        Copy</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="coordinator-session-participant-ids-{short_id}">Participant IDs</label>
+                    <textarea id="coordinator-session-participant-ids-{short_id}" rows="1" disabled spellcheck="false"
+                        placeholder="Participant IDs will appear here..."></textarea>
+                    <button class="copy-button" data-copy-target="coordinator-session-participant-ids-{short_id}">📋
+                        Copy</button>
+                </div>
+
+                <details class="form-group">
+                    <summary>Commitments</summary>
+                    <div class="form-group">
+                        <textarea id="coordinator-session-commitments-{short_id}" rows="1" disabled spellcheck="false"
+                            placeholder="Commitments..."></textarea>
+                        <button class="copy-button" data-copy-target="coordinator-session-commitments-{short_id}">📋
+                            Copy</button>
+                    </div>
+                </details>
+
+                <details class="form-group">
+                    <summary>Signature Shares</summary>
+                    <div class="form-group">
+                        <textarea id="coordinator-session-signature-shares-{short_id}" rows="1" disabled
+                            spellcheck="false" placeholder="Signature Shares..."></textarea>
+                        <button class="copy-button"
+                            data-copy-target="coordinator-session-signature-shares-{short_id}">📋
+                            Copy</button>
+                    </div>
+                </details>
+
+                <hr>
+
+                <div class="session-state">
+                    <span id="coordinator-session-signing-in-progress-{short_id}" class="state-badge">Signing</span>
+                    <span id="coordinator-session-round-one-completed-{short_id}" class="state-badge">Round 1</span>
+                    <span id="coordinator-session-round-two-completed-{short_id}" class="state-badge">Round 2</span>
+                    <span id="coordinator-session-completed-{short_id}" class="state-badge">Complete</span>
+                </div>
+
+                <div class="form-group">
+                    <div class="inline-field">
+                        <label for="coordinator-signature-format">Output Format</label>
+                        <select id="coordinator-signature-format">
+                            <option value="hex">Hex</option>
+                            <option value="base64">Base64</option>
+                            <option value="python">Python Byte String (b'...')</option>
+                        </select>
+                        <button id="coordinator-aggregate-button" class="primary">Aggregate</button>
+                    </div>
+
+                    <label for="coordinator-session-signature-{short_id}">Signature</label>
+                    <textarea id="coordinator-session-signature-{short_id}" rows="1" disabled spellcheck="false"
+                        placeholder="Signature will appear here..."></textarea>
+                    <button class="copy-button" data-copy-target="coordinator-session-signature-{short_id}">📋
+                        Copy</button>
+                </div>
+
+                <div id="coordinator-session-status-{short_id}" class="status-box info" hidden></div>
+
+            </div>
+        </template>
+
+        <div id="coordinator-status" class="status-box info" hidden></div>
+    </section>
 
     <section id="participants" class="tab" hidden></section>
-    
+
     <section id="verify" class="tab" hidden></section>
 
     <script src="./util.js"></script>

@@ -1,6 +1,6 @@
 :root {
     --accent: #2563eb;
-    --accent-light: #dbeafe;
+    --success: #166534;
     --danger: #c71919;
     --bg: #eef2f8;
     --card: #ffffff;
@@ -107,6 +107,7 @@ h2 {
     margin-bottom: 1.5rem;
 }
 
+summary,
 label {
     font-weight: 600;
     margin-top: .5rem;
@@ -199,8 +200,8 @@ button.danger:hover {
 /* Tabs */
 .tabs {
     display: inline-flex;
-    background: white;
-    border: 1px solid var(--border);
+    background: var(--card);
+    border: none;
     border-radius: 12px;
     padding: .3rem;
     gap: .25rem;
@@ -226,7 +227,7 @@ button.danger:hover {
 
 .tab-button.active {
     background: var(--accent);
-    color: white;
+    color: var(--card);
 }
 
 .button-row {
@@ -244,15 +245,15 @@ button.danger:hover {
 }
 
 .status-box.success {
-    background: #ecfdf5;
+    background: var(--card);
     border-color: #6ee7b7;
-    color: #166534;
+    color: var(--success);
 }
 
 .status-box.error {
-    background: #fef2f2;
+    background: var(--card);
     border-color: #fca5a5;
-    color: #991b1b;
+    color: var(--danger);
 }
 
 .status-box.success::before {
@@ -261,4 +262,35 @@ button.danger:hover {
 
 .status-box.error::before {
     content: "✖ ";
+}
+
+/* Sessions */
+hr {
+    color: var(--border);
+}
+
+.session-state {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 1rem 0;
+    padding: 2rem 0 2rem 0;
+}
+
+.state-badge {
+    padding: .3rem .8rem;
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.state-badge.done {
+    background: var(--card);
+    color: var(--success);
+}
+
+.state-badge.current {
+    background: var(--card);
+    color: var(--accent);
 }
