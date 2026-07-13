@@ -59,7 +59,8 @@ def clear_all():
     # disable session creation button until dealer info is set
     web.page["coordinator-create-signing-session-button"].disabled = True
     web.page["coordinator-status"].hidden = True
-    set_status("coordinator-status", "Please generate shares for all participants in the dealer tab first.", "warning")
+    set_status("coordinator-status",
+               "Please generate shares for all participants in the dealer tab first.", "warning")
 
     # participant tab
     # web.page["participant-status"].hidden = True
@@ -116,7 +117,9 @@ def generate():
 
         set_status(
             status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")
+
         web.page["coordinator-create-signing-session-button"].disabled = False
+        web.page["coordinator-status"].hidden = False
     except ValueError as e:
         set_status(status_element, f"Error generating shares: {e}", "error")
         return
@@ -137,21 +140,25 @@ def create_signing_session():
 
     status_element = "coordinator-status"
 
-    message = get_bytes_from_input("coordinator-message", status_element)
-    id = coordinator.create_signing_session(message)
-    id_str = str(id)
-    short_id = get_short_session_id(id_str)
+    try:
+        message = get_bytes_from_input("coordinator-message", status_element)
+        id = coordinator.create_signing_session(message)
+        id_str = str(id)
+        short_id = get_short_session_id(id_str)
 
-    session_template = web.page["coordinator-session-template"].innerHTML
-    session_info_html = re.sub(
-        r">\s+<", "><", re.sub(r"\s+", " ", session_template)).strip()
-    session_info_html = session_info_html.replace(
-        "{session_id}", id_str[:8] + "..." + id_str[-8:])
-    session_info_html = session_info_html.replace("{short_id}", short_id)
+        session_template = web.page["coordinator-session-template"].innerHTML
+        session_info_html = re.sub(
+            r">\s+<", "><", re.sub(r"\s+", " ", session_template)).strip()
+        session_info_html = session_info_html.replace(
+            "{session_id}", id_str[:8] + "..." + id_str[-8:])
+        session_info_html = session_info_html.replace("{short_id}", short_id)
 
-    web.page["coordinator-sessions-container"].innerHTML += session_info_html
+        web.page["coordinator-sessions-container"].innerHTML += session_info_html
 
-    update_session_info(id)
+        update_session_info(id)
+    except UserAbort:
+        # already handled
+        pass
 
 
 def get_short_session_id(session_id: str) -> str:
@@ -164,7 +171,7 @@ def update_session_info(session_id: SessionId):
     short_id = get_short_session_id(str(session_id))
 
     signing_session = coordinator._signing_sessions[session_id]
-    
+
     web.page["coordinator-session-id-" + short_id].value = session_id
     web.page["coordinator-session-message-" +
              short_id].value = signing_session.message
@@ -182,8 +189,10 @@ def update_session_info(session_id: SessionId):
 
 
 def remove_status_classes(element_id: str):
-    web.page[element_id].classes.remove("done") if "done" in web.page[element_id].classes else None
-    web.page[element_id].classes.remove("current") if "current" in web.page[element_id].classes else None
+    web.page[element_id].classes.remove(
+        "done") if "done" in web.page[element_id].classes else None
+    web.page[element_id].classes.remove(
+        "current") if "current" in web.page[element_id].classes else None
 
 
 def set_status_badges(session_id: SessionId):
@@ -204,11 +213,12 @@ def set_status_badges(session_id: SessionId):
         if signing_session.session_completed:
             web.page["coordinator-session-completed-" +
                      short_id].classes.add("done")
-            web.page["coordinator-session-signing-in-progress-" + short_id].classes.add("done")
+            web.page["coordinator-session-signing-in-progress-" +
+                     short_id].classes.add("done")
         else:
             web.page["coordinator-session-signing-in-progress-" +
                      short_id].classes.add("current")
-        
+
         if signing_session.round_two_completed:
             web.page["coordinator-session-round-one-completed-" +
                      short_id].classes.add("done")
@@ -223,7 +233,6 @@ def set_status_badges(session_id: SessionId):
             else:
                 web.page["coordinator-session-round-one-completed-" +
                          short_id].classes.add("current")
-            
 
 
 update_algorithm_info()
