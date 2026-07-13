@@ -59,9 +59,11 @@ def clear_all():
     # disable session creation button until dealer info is set
     web.page["coordinator-create-signing-session-button"].disabled = True
     web.page["coordinator-status"].hidden = True
+    set_status("coordinator-status", "Please generate shares for all participants in the dealer tab first.", "warning")
 
     # participant tab
     # web.page["participant-status"].hidden = True
+    # set_status("coordinator-status", "Please generate shares for all participants in the dealer tab first.", "warning")
 
     # verification tab
     # web.page["verify-status"].hidden = True

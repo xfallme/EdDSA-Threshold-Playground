@@ -250,6 +250,12 @@ button.danger:hover {
     color: var(--success);
 }
 
+.status-box.warning {
+    background: #fefce8;
+    border-color: #facc15;
+    color: #f59e0b;
+}
+
 .status-box.error {
     background: #fef2f2;
     border-color: #fca5a5;
@@ -258,6 +264,10 @@ button.danger:hover {
 
 .status-box.success::before {
     content: "✔ ";
+}
+
+.status-box.warning::before {
+    content: "⚠ ";
 }
 
 .status-box.error::before {
