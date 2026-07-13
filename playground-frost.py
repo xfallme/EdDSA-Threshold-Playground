@@ -12,6 +12,8 @@ from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 from eddsa_threshold.frost.core.ed25519.frost_hashing import Ed25519FrostHashing
 from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
 
+from util import UserAbort, set_status
+
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519Curve, Ed25519FrostHashing),
     "ed448": (Ed448Curve, Ed448FrostHashing)
@@ -45,12 +47,22 @@ def update_algorithm_info():
 @when("click", "#dealer-clear-all-button")
 def clear_all():
     # trusted dealer tab
-    clear_dealer()
+    clear_dealer_input()
     web.page["group-public-key"].value = ""
+    web.page["dealer-status"].hidden = True
 
     # coordinator tab
     # clear session info
     web.page["coordinator-sessions-container"].innerHTML = ""
+    # disable session creation button until dealer info is set
+    web.page["coordinator-create-signing-session-button"].disabled = True
+    web.page["coordinator-status"].hidden = True
+
+    # participant tab
+    # web.page["participant-status"].hidden = True
+
+    # verification tab
+    # web.page["verify-status"].hidden = True
 
     # clear state
     global participants
@@ -63,10 +75,12 @@ def clear_all():
 
 
 @when("click", "#dealer-generate-button")
-def create():
+def generate():
     global participants
     global coordinator
     global trusted_dealer
+
+    status_element = "dealer-status"
 
     threshold = int(web.page["threshold"].value)
     participant_count = int(web.page["participant-count"].value)
@@ -74,32 +88,48 @@ def create():
 
     participants = []
     participant_connections = {}
-    for i in participant_ids:
-        p_i = FrostParticipant(
-            i, threshold, participant_count, frost_hashing, curve)
-        participants.append(p_i)
-        participant_connections[i] = lambda share, vss_commitment, p=p_i: p.set_and_verify_dealer_info(
-            share, vss_commitment)
 
-    coordinator = FrostCoordinator(
-        threshold, participant_ids, frost_hashing, curve)
-    trusted_dealer = FrostTrustedDealer.generate(
-        threshold, participant_ids, participant_connections, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
+    try:
+        for i in participant_ids:
+            p_i = FrostParticipant(
+                i, threshold, participant_count, frost_hashing, curve)
+            participants.append(p_i)
+            participant_connections[i] = lambda share, vss_commitment, p=p_i: p.set_and_verify_dealer_info(
+                share, vss_commitment)
 
-    trusted_dealer.keygen()
+        coordinator = FrostCoordinator(
+            threshold, participant_ids, frost_hashing, curve)
+        # TODO: get existing secret
+        trusted_dealer = FrostTrustedDealer.generate(
+            threshold, participant_ids, participant_connections, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
 
-    group_info = coordinator._GROUP_INFO
+        trusted_dealer.keygen()
 
-    web.page["group-public-key"].value = str(group_info.group_public_key)
+        group_info = coordinator._GROUP_INFO
+
+        # TODO: choose output format
+        web.page["group-public-key"].value = str(group_info.group_public_key)
+
+        set_status(
+            status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")
+        web.page["coordinator-create-signing-session-button"].disabled = False
+    except ValueError as e:
+        set_status(status_element, f"Error generating shares: {e}", "error")
+        return
 
 
 @when("click", "#dealer-clear-button")
-def clear_dealer():
+def clear_dealer_input():
     web.page["participant-count"].value = "3"
     web.page["threshold"].value = "2"
     web.page["dealer-use-existing-secret"].checked = True
     web.page["dealer-existing-secret-section"].style["display"] = "none"
     web.page["dealer-existing-secret"].value = ""
+
+
+@when("click", "#coordinator-create-signing-session-button")
+def create_signing_session():
+    print("Creating signing session...")
 
 
 update_algorithm_info()
