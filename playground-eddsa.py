@@ -208,10 +208,5 @@ def clear_verify():
     web.page["verify-status"].hidden = True
 
 
-# Initialize algorithm and keypair classes on page load (set correct labels and placeholders)
+# Initialize algorithm and keypair classes on page load
 update_algorithm_info()
-# clear fields because the variables are not initialized yet
-clear_keypair()
-clear_existing_keypair()
-clear_sign()
-clear_verify()
