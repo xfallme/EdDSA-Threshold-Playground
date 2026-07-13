@@ -245,13 +245,13 @@ button.danger:hover {
 }
 
 .status-box.success {
-    background: var(--card);
+    background: #ecfdf5;
     border-color: #6ee7b7;
     color: var(--success);
 }
 
 .status-box.error {
-    background: var(--card);
+    background: #fef2f2;
     border-color: #fca5a5;
     color: var(--danger);
 }
@@ -312,11 +312,11 @@ hr {
 }
 
 .state-badge.done {
-    background: var(--card);
-    color: var(--success);
+    background: var(--success);
+    color: var(--card);
 }
 
 .state-badge.current {
-    background: var(--card);
-    color: var(--accent);
+    background: var(--accent);
+    color: var(--card);
 }
