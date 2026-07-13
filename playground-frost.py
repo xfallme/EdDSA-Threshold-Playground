@@ -1,7 +1,9 @@
+import re
 from typing import Dict, Tuple, Type
 
 from pyscript import web, when
 
+from eddsa_threshold.frost.core.frost_types import SessionId
 from eddsa_threshold.frost.coordinator import FrostCoordinator
 from eddsa_threshold.frost.trusted_dealer import FrostTrustedDealer
 from eddsa_threshold.frost.participant import FrostParticipant
@@ -12,16 +14,16 @@ from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 from eddsa_threshold.frost.core.ed25519.frost_hashing import Ed25519FrostHashing
 from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
 
-from util import UserAbort, set_status
+from util import UserAbort, get_bytes_from_input, set_status
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519Curve, Ed25519FrostHashing),
     "ed448": (Ed448Curve, Ed448FrostHashing)
 }
 
-participants = None
-coordinator = None
-trusted_dealer = None
+participants: list[FrostParticipant] | None = None
+coordinator: FrostCoordinator | None = None
+trusted_dealer: FrostTrustedDealer | None = None
 
 curve = EdwardsCurve | None
 frost_hashing = FrostHashing | None
@@ -129,7 +131,97 @@ def clear_dealer_input():
 
 @when("click", "#coordinator-create-signing-session-button")
 def create_signing_session():
-    print("Creating signing session...")
+    global coordinator
+
+    status_element = "coordinator-status"
+
+    message = get_bytes_from_input("coordinator-message", status_element)
+    id = coordinator.create_signing_session(message)
+    id_str = str(id)
+    short_id = get_short_session_id(id_str)
+
+    session_template = web.page["coordinator-session-template"].innerHTML
+    session_info_html = re.sub(
+        r">\s+<", "><", re.sub(r"\s+", " ", session_template)).strip()
+    session_info_html = session_info_html.replace(
+        "{session_id}", id_str[:8] + "..." + id_str[-8:])
+    session_info_html = session_info_html.replace("{short_id}", short_id)
+
+    web.page["coordinator-sessions-container"].innerHTML += session_info_html
+
+    update_session_info(id)
+
+
+def get_short_session_id(session_id: str) -> str:
+    return str(session_id)[:8] + str(session_id)[-8:]
+
+
+def update_session_info(session_id: SessionId):
+    global coordinator
+
+    short_id = get_short_session_id(str(session_id))
+
+    signing_session = coordinator._signing_sessions[session_id]
+    
+    web.page["coordinator-session-id-" + short_id].value = session_id
+    web.page["coordinator-session-message-" +
+             short_id].value = signing_session.message
+    if signing_session.participant_ids:
+        web.page["coordinator-session-participants-" +
+                 short_id].value = str(signing_session.participant_ids)
+    if signing_session.commitments:
+        web.page["coordinator-session-commitments-" +
+                 short_id].value = str(signing_session.commitments)
+    if signing_session.signature_shares:
+        web.page["coordinator-session-signature-shares-" +
+                 short_id].value = str(signing_session.signature_shares)
+
+    set_status_badges(session_id)
+
+
+def remove_status_classes(element_id: str):
+    web.page[element_id].classes.remove("done") if "done" in web.page[element_id].classes else None
+    web.page[element_id].classes.remove("current") if "current" in web.page[element_id].classes else None
+
+
+def set_status_badges(session_id: SessionId):
+    global coordinator
+
+    short_id = get_short_session_id(str(session_id))
+    signing_session = coordinator._signing_sessions[session_id]
+
+    remove_status_classes(
+        "coordinator-session-signing-in-progress-" + short_id)
+    remove_status_classes(
+        "coordinator-session-round-one-completed-" + short_id)
+    remove_status_classes(
+        "coordinator-session-round-two-completed-" + short_id)
+    remove_status_classes("coordinator-session-completed-" + short_id)
+
+    if signing_session.signing_in_progress:
+        if signing_session.session_completed:
+            web.page["coordinator-session-completed-" +
+                     short_id].classes.add("done")
+            web.page["coordinator-session-signing-in-progress-" + short_id].classes.add("done")
+        else:
+            web.page["coordinator-session-signing-in-progress-" +
+                     short_id].classes.add("current")
+        
+        if signing_session.round_two_completed:
+            web.page["coordinator-session-round-one-completed-" +
+                     short_id].classes.add("done")
+            web.page["coordinator-session-round-two-completed-" +
+                     short_id].classes.add("done")
+        else:
+            if signing_session.round_one_completed:
+                web.page["coordinator-session-round-one-completed-" +
+                         short_id].classes.add("done")
+                web.page["coordinator-session-round-two-completed-" +
+                         short_id].classes.add("current")
+            else:
+                web.page["coordinator-session-round-one-completed-" +
+                         short_id].classes.add("current")
+            
 
 
 update_algorithm_info()
