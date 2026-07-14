@@ -274,7 +274,8 @@ button.danger:hover {
     content: "✖ ";
 }
 
-/* Sessions */
+/* Sessions / Participants */
+.participant-card > summary,
 .session-card > summary {
     display: flex;
     align-items: center;
@@ -282,20 +283,24 @@ button.danger:hover {
     list-style: none;
 }
 
+.participant-card > summary::before,
 .session-card > summary::before {
     content: "▶";
     margin-right: 0.75rem;
     transition: transform 0.2s;
 }
 
+.participant-card[open] > summary::before,
 .session-card[open] > summary::before {
     transform: rotate(90deg);
 }
 
+.participant-card > summary h2,
 .session-card > summary h2 {
     margin: 0;
 }
 
+.participant-title,
 .session-title {
     font-size: 1.5rem;
     font-weight: 600;

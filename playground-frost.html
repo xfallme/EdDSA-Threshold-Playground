@@ -209,7 +209,17 @@
     <section id="participants" class="tab" hidden>
         <div id="participants-container"></div>
 
-        <template id="participant-template"></template>
+        <template id="participant-template">
+            <details class="card participant-card">
+                <summary>
+                    <span class="participant-title">
+                        Participant {participant_id}
+                    </span>
+                </summary>
+
+                <div id="participant-status-{participant_id}" class="status-box info" hidden></div>
+            </details>
+        </template>
 
         <div id="participants-status" class="status-box info" hidden></div>
     </section>
