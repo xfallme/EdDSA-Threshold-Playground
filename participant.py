@@ -22,7 +22,8 @@ class ParticipantView:
         participant_html = participant_html.replace(
             "{participant_id}", str(self.ID))
 
-        web.page["participants-container"].innerHTML += participant_html
+        web.page["participants-container"].insertAdjacentHTML(
+            "beforeend", participant_html)
 
     def set_coordinator_connections(self, coordinator_round_one: Callable[[SessionId, ParticipantId, NonceCommitment], None], coordinator_round_two: Callable[[SessionId, ParticipantId, SecretValue], None]):
         self._coordinator_round_one = coordinator_round_one
