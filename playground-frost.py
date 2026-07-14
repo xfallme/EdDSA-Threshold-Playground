@@ -54,6 +54,7 @@ def clear_all(event):
     clear_dealer_input()
     web.page["group-public-key"].value = ""
     web.page["dealer-status"].hidden = True
+    web.page["dealer-generate-button"].disabled = False
 
     # coordinator tab
     clear_signing_session_input()
@@ -130,6 +131,7 @@ def generate():
             status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")
 
         web.page["coordinator-create-signing-session-button"].disabled = False
+        web.page["dealer-generate-button"].disabled = True
         web.page["coordinator-status"].hidden = True
         web.page["participants-status"].hidden = True
     except ValueError as e:

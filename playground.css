@@ -179,6 +179,11 @@ button.primary {
     border: none;
 }
 
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
 button.danger {
     background: var(--danger);
     color: white;
