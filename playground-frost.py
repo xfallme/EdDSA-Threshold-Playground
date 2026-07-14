@@ -58,13 +58,15 @@ def clear_all():
     web.page["coordinator-sessions-container"].innerHTML = ""
     # disable session creation button until dealer info is set
     web.page["coordinator-create-signing-session-button"].disabled = True
-    web.page["coordinator-status"].hidden = True
+    web.page["coordinator-status"].hidden = False
     set_status("coordinator-status",
                "Please generate shares for all participants in the dealer tab first.", "warning")
 
     # participant tab
-    # web.page["participant-status"].hidden = True
-    # set_status("coordinator-status", "Please generate shares for all participants in the dealer tab first.", "warning")
+    web.page["participants-container"].innerHTML = ""
+    web.page["participants-status"].hidden = False
+    set_status("participants-status",
+               "Please generate shares for all participants in the dealer tab first.", "warning")
 
     # verification tab
     # web.page["verify-status"].hidden = True
@@ -127,7 +129,8 @@ def generate():
             status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")
 
         web.page["coordinator-create-signing-session-button"].disabled = False
-        web.page["coordinator-status"].hidden = False
+        web.page["coordinator-status"].hidden = True
+        web.page["participants-status"].hidden = True
     except ValueError as e:
         set_status(status_element, f"Error generating shares: {e}", "error")
         return
@@ -169,6 +172,8 @@ def create_signing_session():
         pass
 
 
+# Session Management Functions
+
 def get_short_session_id(session_id: str) -> str:
     return str(session_id)[:8] + str(session_id)[-8:]
 
@@ -193,54 +198,43 @@ def update_session_info(session_id: SessionId):
         web.page["coordinator-session-signature-shares-" +
                  short_id].value = str(signing_session.signature_shares)
 
-    set_status_badges(session_id)
+    set_state_badges(session_id)
 
 
-def remove_status_classes(element_id: str):
-    web.page[element_id].classes.remove(
-        "done") if "done" in web.page[element_id].classes else None
-    web.page[element_id].classes.remove(
-        "current") if "current" in web.page[element_id].classes else None
+def set_state_badge_class(element_id: str, state: str):
+    web.page[element_id].className = f"state-badge {state}"
 
 
-def set_status_badges(session_id: SessionId):
+def set_state_badges(session_id: SessionId):
     global coordinator
 
     short_id = get_short_session_id(str(session_id))
     signing_session = coordinator._signing_sessions[session_id]
 
-    remove_status_classes(
-        "coordinator-session-signing-in-progress-" + short_id)
-    remove_status_classes(
-        "coordinator-session-round-one-completed-" + short_id)
-    remove_status_classes(
-        "coordinator-session-round-two-completed-" + short_id)
-    remove_status_classes("coordinator-session-completed-" + short_id)
-
     if signing_session.signing_in_progress:
         if signing_session.session_completed:
-            web.page["coordinator-session-completed-" +
-                     short_id].classes.add("done")
-            web.page["coordinator-session-signing-in-progress-" +
-                     short_id].classes.add("done")
+            set_state_badge_class(
+                "coordinator-session-completed-" + short_id, "done")
+            set_state_badge_class(
+                "coordinator-session-signing-in-progress-" + short_id, "done")
         else:
-            web.page["coordinator-session-signing-in-progress-" +
-                     short_id].classes.add("current")
+            set_state_badge_class(
+                "coordinator-session-signing-in-progress-" + short_id, "current")
 
         if signing_session.round_two_completed:
-            web.page["coordinator-session-round-one-completed-" +
-                     short_id].classes.add("done")
-            web.page["coordinator-session-round-two-completed-" +
-                     short_id].classes.add("done")
+            set_state_badge_class(
+                "coordinator-session-round-one-completed-" + short_id, "done")
+            set_state_badge_class(
+                "coordinator-session-round-two-completed-" + short_id, "done")
         else:
             if signing_session.round_one_completed:
-                web.page["coordinator-session-round-one-completed-" +
-                         short_id].classes.add("done")
-                web.page["coordinator-session-round-two-completed-" +
-                         short_id].classes.add("current")
+                set_state_badge_class(
+                    "coordinator-session-round-one-completed-" + short_id, "done")
+                set_state_badge_class(
+                    "coordinator-session-round-two-completed-" + short_id, "current")
             else:
-                web.page["coordinator-session-round-one-completed-" +
-                         short_id].classes.add("current")
+                set_state_badge_class(
+                    "coordinator-session-round-one-completed-" + short_id, "current")
 
 
 update_algorithm_info()
