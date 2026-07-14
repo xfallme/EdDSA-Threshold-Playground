@@ -1,6 +1,6 @@
 from typing import Dict, Tuple, Type
 
-from pyscript import web, when
+from pyscript import web, when, window
 
 from eddsa_threshold.frost.core.frost_types import SessionId
 from coordinator import CoordinatorView
@@ -42,17 +42,21 @@ def update_algorithm_info():
     print("ready to use curve class:", curve_cls.__name__,
           "and frost hashing class:", frost_hashing_cls.__name__)
 
-    clear_all()
+    clear_all(None)
 
 
 @when("click", "#dealer-clear-all-button")
-def clear_all():
+def clear_all(event):
+    if event is not None and not window.confirm("Are you sure you want to clear all inputs and reset the state? This will remove all participants, coordinator, and dealer information."):
+        return
+
     # trusted dealer tab
     clear_dealer_input()
     web.page["group-public-key"].value = ""
     web.page["dealer-status"].hidden = True
 
     # coordinator tab
+    clear_signing_session_input()
     # clear session info
     web.page["coordinator-sessions-container"].innerHTML = ""
     # disable session creation button until dealer info is set
@@ -154,6 +158,11 @@ def create_signing_session():
     except UserAbort:
         # already handled
         pass
+
+
+@when("click", "#coordinator-clear-button")
+def clear_signing_session_input():
+    web.page["coordinator-message"].value = ""
 
 
 update_algorithm_info()
