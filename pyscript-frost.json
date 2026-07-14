@@ -5,7 +5,9 @@
     "fetch": [
         {
             "files": [
-                "./util.py"
+                "./util.py",
+                "./participant.py",
+                "./coordinator.py"
             ]
         }
     ]
