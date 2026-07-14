@@ -5,8 +5,8 @@ from pyscript import web, when
 
 from eddsa_threshold.frost.core.frost_types import SessionId
 from eddsa_threshold.frost.coordinator import FrostCoordinator
+from participant import ParticipantView
 from eddsa_threshold.frost.trusted_dealer import FrostTrustedDealer
-from eddsa_threshold.frost.participant import FrostParticipant
 from eddsa_threshold.eddsa.curves.base.edwards_curve import EdwardsCurve
 from eddsa_threshold.eddsa.curves.ed25519.ed25519_curve import Ed25519Curve
 from eddsa_threshold.eddsa.curves.ed448.ed448_curve import Ed448Curve
@@ -21,7 +21,7 @@ ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed448": (Ed448Curve, Ed448FrostHashing)
 }
 
-participants: list[FrostParticipant] | None = None
+participants: list[ParticipantView] | None = None
 coordinator: FrostCoordinator | None = None
 trusted_dealer: FrostTrustedDealer | None = None
 
@@ -96,7 +96,7 @@ def generate():
 
     try:
         for i in participant_ids:
-            p_i = FrostParticipant(
+            p_i = ParticipantView(
                 i, threshold, participant_count, frost_hashing, curve)
             participants.append(p_i)
             participant_connections[i] = lambda share, vss_commitment, p=p_i: p.set_and_verify_dealer_info(
@@ -107,6 +107,14 @@ def generate():
         # TODO: get existing secret
         trusted_dealer = FrostTrustedDealer.generate(
             threshold, participant_ids, participant_connections, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
+
+        for p_i in participants:
+            p_i.set_coordinator_connections(
+                lambda session_id, participant_id, commitment, coordinator=coordinator: coordinator.receive_commitment(
+                    session_id, participant_id, commitment),
+                lambda session_id, participant_id, signature_share, coordinator=coordinator: coordinator.receive_signature_share(
+                    session_id, participant_id, signature_share)
+            )
 
         trusted_dealer.keygen()
 
