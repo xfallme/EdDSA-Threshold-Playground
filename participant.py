@@ -8,6 +8,8 @@ from eddsa_threshold.frost.core.frost_types import NonceCommitment, ParticipantI
 from eddsa_threshold.eddsa.curves.base.edwards_curve import EdwardsCurve
 from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 
+from util import get_short_session_id_with_dots
+
 
 class ParticipantView:
     def __init__(self, participant_id: ParticipantId, threshold: int, max_participants: int, hashing: FrostHashing, curve: EdwardsCurve):
@@ -15,6 +17,8 @@ class ParticipantView:
         self._PARTICIPANT = FrostParticipant(
             participant_id, threshold, max_participants, hashing, curve)
         self._signing_packages: dict[SessionId, SigningPackage] = {}
+        self._available_sessions: set[SessionId] = set()
+        self._joined_sessions: set[SessionId] = set()
 
         participant_template = web.page["participant-template"].innerHTML
         participant_html = re.sub(
@@ -25,7 +29,8 @@ class ParticipantView:
         web.page["participants-container"].insertAdjacentHTML(
             "beforeend", participant_html)
 
-    def set_coordinator_connections(self, coordinator_round_one: Callable[[SessionId, ParticipantId, NonceCommitment], None], coordinator_round_two: Callable[[SessionId, ParticipantId, SecretValue], None]):
+    def set_coordinator_connections(self, coordinator_register: Callable[[SessionId, ParticipantId], None], coordinator_round_one: Callable[[SessionId, ParticipantId, NonceCommitment], None], coordinator_round_two: Callable[[SessionId, ParticipantId, SecretValue], None]):
+        self._coordinator_register = coordinator_register
         self._coordinator_round_one = coordinator_round_one
         self._coordinator_round_two = coordinator_round_two
 
@@ -33,7 +38,23 @@ class ParticipantView:
         self._PARTICIPANT.set_and_verify_dealer_info(
             secret_share, vss_commitment)
 
+    def add_available_session(self, session_id: SessionId) -> None:
+        self._available_sessions.add(session_id)
+        id = str(session_id)
+        web.page[f"participant-available-sessions-{self.ID}"].options.add(
+            value=id, html=get_short_session_id_with_dots(id))
+
+    def join_session_by_id(self, session_id: SessionId) -> None:
+        if session_id not in self._available_sessions:
+            raise ValueError(
+                f"Participant {self.ID} cannot join session {session_id} because it is not available")
+        self._coordinator_register(session_id, self.ID)
+        self._joined_sessions.add(session_id)
+
     def round_one_commit(self, session_id: SessionId) -> None:
+        if session_id not in self._joined_sessions:
+            raise ValueError(
+                f"Participant {self.ID} cannot commit to session {session_id} because it has not joined it")
         self._coordinator_round_one(
             session_id, self.ID, self._PARTICIPANT.round_one_commit(session_id))
 
@@ -47,3 +68,7 @@ class ParticipantView:
                 f"Participant {self.ID} has not received a signing package for session {session_id}")
         self._coordinator_round_two(
             session_id, self.ID, self._PARTICIPANT.round_two_sign(signing_package))
+
+    def update_participant_info(self) -> None:
+        # Update participant info in the UI
+        pass

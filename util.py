@@ -76,3 +76,10 @@ def _decode_bytes(data: str, fmt: str, status_element: str) -> bytes:
 
     set_status(status_element, f"Unsupported format: {fmt}", "error")
     raise ValueError(f"Unsupported format: {fmt}")
+
+
+def get_short_session_id(session_id: str) -> str:
+    return str(session_id)[:8] + str(session_id)[-8:]
+
+def get_short_session_id_with_dots(session_id: str) -> str:
+    return str(session_id)[:8] + "..." + str(session_id)[-8:]

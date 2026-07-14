@@ -113,7 +113,8 @@
             </div>
 
             <div class="button-row">
-                <button id="coordinator-create-signing-session-button" class="primary" disabled>Create Signing Session</button>
+                <button id="coordinator-create-signing-session-button" class="primary" disabled>Create Signing
+                    Session</button>
                 <button id="coordinator-clear-button">Clear Input</button>
             </div>
         </div>
@@ -216,6 +217,15 @@
                         Participant {participant_id}
                     </span>
                 </summary>
+
+                <div class="form-group format-row">
+                    <label for="participant-available-sessions-{participant_id}">Select a Session to Join</label>
+                    <select id="participant-available-sessions-{participant_id}">
+                        <option value="">-- Select a session --</option>
+                    </select>
+
+                    <button id="participant-join-session-button-{participant_id}" class="primary" data-id="{participant_id}">Join Session</button>
+                </div>
 
                 <div id="participant-status-{participant_id}" class="status-box info" hidden></div>
             </details>

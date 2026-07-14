@@ -1,8 +1,9 @@
 from typing import Dict, Tuple, Type
 
 from pyscript import web, when, window
+from pyodide.ffi.wrappers import add_event_listener
 
-from eddsa_threshold.frost.core.frost_types import SessionId
+from eddsa_threshold.frost.core.frost_types import ParticipantId, SessionId
 from coordinator import CoordinatorView
 from participant import ParticipantView
 from eddsa_threshold.frost.trusted_dealer import FrostTrustedDealer
@@ -20,7 +21,7 @@ ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed448": (Ed448Curve, Ed448FrostHashing)
 }
 
-participants: list[ParticipantView] | None = None
+participants: Dict[ParticipantId, ParticipantView] | None = None
 coordinator: CoordinatorView | None = None
 trusted_dealer: FrostTrustedDealer | None = None
 
@@ -97,7 +98,7 @@ def generate():
     participant_count = int(web.page["participant-count"].value)
     participant_ids = [i for i in range(1, participant_count + 1)]
 
-    participants = []
+    participants = {}
     participant_connections_dealer = {}
     participant_connections_coordinator = {}
 
@@ -105,7 +106,9 @@ def generate():
         for i in participant_ids:
             p_i = ParticipantView(
                 i, threshold, participant_count, frost_hashing, curve)
-            participants.append(p_i)
+            add_event_listener(
+                web.page[f"participant-join-session-button-{i}"], "click", join_session)
+            participants[i] = p_i
             participant_connections_dealer[i] = lambda share, vss_commitment, p=p_i: p.set_and_verify_dealer_info(
                 share, vss_commitment)
 
@@ -115,16 +118,20 @@ def generate():
         trusted_dealer = FrostTrustedDealer.generate(
             threshold, participant_ids, participant_connections_dealer, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
 
-        for p_i in participants:
+        for p_i in participants.values():
             p_i.set_coordinator_connections(
+                lambda session_id, participant_id, coordinator=coordinator: coordinator.register_participant_to_session(
+                    session_id, participant_id),
                 lambda session_id, participant_id, commitment, coordinator=coordinator: coordinator.receive_commitment(
                     session_id, participant_id, commitment),
                 lambda session_id, participant_id, signature_share, coordinator=coordinator: coordinator.receive_signature_share(
                     session_id, participant_id, signature_share)
             )
-            participant_connections_coordinator[p_i.ID] = lambda signing_package, p=p_i: p.receive_signing_package(signing_package)
+            participant_connections_coordinator[p_i.ID] = lambda signing_package, p=p_i: p.receive_signing_package(
+                signing_package)
 
-        coordinator.set_participant_connections(participant_connections_coordinator)
+        coordinator.set_participant_connections(
+            participant_connections_coordinator)
 
         trusted_dealer.keygen()
 
@@ -160,7 +167,10 @@ def create_signing_session():
 
     try:
         message = get_bytes_from_input("coordinator-message", status_element)
-        coordinator.create_signing_session(message)
+        id = coordinator.create_signing_session(message)
+
+        for p in participants.values():
+            p.add_available_session(id)
     except UserAbort:
         # already handled
         pass
@@ -169,6 +179,18 @@ def create_signing_session():
 @when("click", "#coordinator-clear-button")
 def clear_signing_session_input():
     web.page["coordinator-message"].value = ""
+
+
+def join_session(event):
+    # listener added by add_event_listener in generate() to avoid issues with participant IDs not being available at the time of adding the listener
+    participant_id = event.target.dataset.id
+    session_id_str = web.page[f"participant-available-sessions-{participant_id}"].value
+    if session_id_str == "":
+        return
+
+    session_id = SessionId(session_id_str)
+    participants[int(participant_id)].join_session_by_id(session_id)
+    coordinator.update_session_info(session_id)
 
 
 update_algorithm_info()
