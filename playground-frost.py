@@ -98,21 +98,22 @@ def generate():
     participant_ids = [i for i in range(1, participant_count + 1)]
 
     participants = []
-    participant_connections = {}
+    participant_connections_dealer = {}
+    participant_connections_coordinator = {}
 
     try:
         for i in participant_ids:
             p_i = ParticipantView(
                 i, threshold, participant_count, frost_hashing, curve)
             participants.append(p_i)
-            participant_connections[i] = lambda share, vss_commitment, p=p_i: p.set_and_verify_dealer_info(
+            participant_connections_dealer[i] = lambda share, vss_commitment, p=p_i: p.set_and_verify_dealer_info(
                 share, vss_commitment)
 
         coordinator = CoordinatorView(
             threshold, participant_ids, frost_hashing, curve)
         # TODO: get existing secret
         trusted_dealer = FrostTrustedDealer.generate(
-            threshold, participant_ids, participant_connections, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
+            threshold, participant_ids, participant_connections_dealer, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
 
         for p_i in participants:
             p_i.set_coordinator_connections(
@@ -121,6 +122,9 @@ def generate():
                 lambda session_id, participant_id, signature_share, coordinator=coordinator: coordinator.receive_signature_share(
                     session_id, participant_id, signature_share)
             )
+            participant_connections_coordinator[p_i.ID] = lambda signing_package, p=p_i: p.receive_signing_package(signing_package)
+
+        coordinator.set_participant_connections(participant_connections_coordinator)
 
         trusted_dealer.keygen()
 
