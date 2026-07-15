@@ -2,6 +2,7 @@ from typing import Dict, Tuple, Type
 
 from pyscript import web, when, window
 from pyodide.ffi.wrappers import add_event_listener
+from js import copyToClipboard
 
 from eddsa_threshold.frost.core.frost_types import ParticipantId, SessionId
 from coordinator import CoordinatorView
@@ -179,6 +180,8 @@ def create_signing_session():
             web.page[f"coordinator-session-start-signing-{id}"], "click", start_session)
         add_event_listener(
             web.page[f"coordinator-session-aggregate-signature-{id}-button"], "click", aggregate_session)
+        # has to be done here, because this button doesn't exist when JS runs over all buttons
+        copyToClipboard(web.page[f"coordinator-session-copy-signature-{id}-button"])
         add_format_change_listener(
             f"coordinator-session-signature-{id}", f"coordinator-session-signature-{id}-format")
     except UserAbort:

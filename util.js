@@ -13,14 +13,18 @@ buttons.forEach(button => {
 });
 
 // Copy to clipboard functionality
-document.querySelectorAll(".copy-button").forEach(button => {
-    button.onclick = async () => {
-        const target = document.getElementById(button.dataset.copyTarget);
+function copyToClipboard(button) {
+    button.onclick = async function () {
+        const target = document.getElementById(this.dataset.copyTarget);
         await navigator.clipboard.writeText(target.value);
-        const oldText = button.textContent;
-        button.textContent = "✓ Copied!";
+        const oldText = this.textContent;
+        this.textContent = "✓ Copied!";
         setTimeout(() => {
-            button.textContent = oldText;
+            this.textContent = oldText;
         }, 1500);
     };
+}
+
+document.querySelectorAll(".copy-button").forEach(button => {
+    copyToClipboard(button);
 });
