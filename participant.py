@@ -74,7 +74,7 @@ class ParticipantView:
         session_html = re.sub(
             r">\s+<", "><", re.sub(r"\s+", " ", session_template)).strip()
         session_html = session_html.replace("{participant_id}", str(
-            self.ID)).replace("{session_id}", str(session_id))
+            self.ID)).replace("{session_id}", str(session_id)).replace("{short_id}", get_short_session_id_with_dots(session_id))
 
         web.page[f"participant-sessions-container-{self.ID}"].insertAdjacentHTML(
             "beforeend", session_html)
