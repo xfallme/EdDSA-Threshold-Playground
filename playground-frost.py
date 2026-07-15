@@ -14,7 +14,7 @@ from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 from eddsa_threshold.frost.core.ed25519.frost_hashing import Ed25519FrostHashing
 from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
 
-from util import UserAbort, get_bytes_from_input, set_output, set_status
+from util import UserAbort, get_bytes_from_input, set_output, set_status, add_format_change_listener
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519Curve, Ed25519FrostHashing),
@@ -177,6 +177,8 @@ def create_signing_session():
             web.page[f"coordinator-session-start-signing-{id}"], "click", start_session)
         add_event_listener(
             web.page[f"coordinator-session-aggregate-signature-{id}-button"], "click", aggregate_session)
+        add_format_change_listener(
+            f"coordinator-session-signature-{id}", f"coordinator-session-signature-{id}-format")
     except UserAbort:
         # already handled
         pass
@@ -234,4 +236,10 @@ def aggregate_session(event):
     session_id = SessionId(event.target.dataset.sid)
     coordinator.aggregate(session_id)
 
+
 update_algorithm_info()
+
+# format change listeners for all input/output elements that are present at site creation
+add_format_change_listener("group-public-key-output",
+                           "group-public-key-output-format")
+add_format_change_listener("coordinator-message", "coordinator-message-format")

@@ -11,7 +11,7 @@ from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 from eddsa_threshold.eddsa.algorithms.ed448ph import Ed448PH
 from eddsa_threshold.eddsa.keys.ed448_keypair import Ed448Keypair
 
-from util import UserAbort, get_bytes_from_input, set_output, set_output_format_override, set_status
+from util import UserAbort, get_bytes_from_input, set_output, set_output_format_element_override, set_status
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519, Ed25519Keypair),
@@ -50,9 +50,9 @@ def generate_keypair():
     global keypair
 
     keypair = keypair_cls.generate()
-    set_output_format_override(
+    set_output_format_element_override(
         "private-key-output", "keygen-output-format", keypair.private_bytes)
-    set_output_format_override(
+    set_output_format_element_override(
         "public-key-output", "keygen-output-format", keypair.public_bytes)
     set_status("keygen-status",
                "Keypair generated successfully. It is now stored and ready to use in the other tabs.", "success")
@@ -80,9 +80,9 @@ def derive_keypair():
             "keygen-existing-key", status_element)
 
         keypair = keypair_cls.from_private_bytes(private_key_input)
-        set_output_format_override(
+        set_output_format_element_override(
             "private-key-output", "keygen-existing-key-output-format", keypair.private_bytes)
-        set_output_format_override(
+        set_output_format_element_override(
             "public-key-output", "keygen-existing-key-output-format", keypair.public_bytes)
         set_status(status_element,
                    "Keypair derived successfully. It is now stored and ready to use in the other tabs.", "success")
