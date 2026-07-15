@@ -60,6 +60,7 @@ def clear_all(event):
     web.page["dealer-use-existing-secret"].checked = True
     web.page["dealer-existing-secret-section"].style["display"] = "none"
     web.page["dealer-existing-secret"].value = ""
+    web.page["group-secret-output"].value = ""
     web.page["group-public-key-output"].value = ""
     web.page["dealer-status"].hidden = True
     web.page["dealer-generate-button"].disabled = False
