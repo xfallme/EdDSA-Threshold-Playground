@@ -162,9 +162,10 @@ def generate():
         web.page["dealer-generate-button"].disabled = True
         web.page["coordinator-status"].hidden = True
         web.page["participants-status"].hidden = True
-    except ValueError as e:
+    except Exception as e:
+        # on any error, we need to roll back creation of participants and coordinator, because they might be in an inconsistent state
+        clear_all(None)
         set_status(status_element, f"Error generating shares: {e}", "error")
-        return
 
 
 @when("click", "#coordinator-create-signing-session-button")
