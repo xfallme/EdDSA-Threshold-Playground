@@ -13,6 +13,8 @@ from eddsa_threshold.eddsa.curves.ed448.ed448_curve import Ed448Curve
 from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 from eddsa_threshold.frost.core.ed25519.frost_hashing import Ed25519FrostHashing
 from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
+from eddsa_threshold.eddsa.algorithms.ed25519 import Ed25519
+from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 
 from util import UserAbort, get_bytes_from_input, set_output, set_status, add_format_change_listener
 
@@ -74,7 +76,7 @@ def clear_all(event):
                "Please generate shares for all participants in the dealer tab first.", "warning")
 
     # verification tab
-    # web.page["verify-status"].hidden = True
+    clear_verify()
 
     # clear state
     global participants
@@ -235,6 +237,55 @@ def aggregate_session(event):
     # listener added by add_event_listener in create_signing_session() to avoid issues with participant IDs not being available at the time of adding the listener
     session_id = SessionId(event.target.dataset.sid)
     coordinator.aggregate(session_id)
+
+
+@when("click", "#verify-button")
+def verify():
+    status_element = "verify-status"
+
+    public_key = None
+
+    try:
+        if web.page["verify-use-existing-key"].checked:
+            if coordinator is None:
+                set_status(
+                    "verify-status", "No group public key generated yet. Please run the trusted dealer first.", "error")
+                return
+            public_key = coordinator.group_public_key
+        else:
+            public_key = get_bytes_from_input(
+                "verify-public-key", status_element)
+
+        message = get_bytes_from_input("verify-message", status_element)
+        signature = get_bytes_from_input("verify-signature", status_element)
+
+        selected_algorithm = ''.join(web.page["algorithm"].value)
+        if selected_algorithm == "ed25519":
+            is_valid = Ed25519.verify(signature, message, public_key)
+        elif selected_algorithm == "ed448":
+            is_valid = Ed448.verify(signature, message, public_key, b'')
+        else:
+            set_status(status_element,
+                       f"Unsupported algorithm: {selected_algorithm}", "error")
+            return
+
+        if is_valid:
+            set_status("verify-status", "Signature is valid.", "success")
+        else:
+            set_status("verify-status", "Signature is invalid.", "error")
+    except UserAbort:
+        # already handled
+        pass
+
+
+@when("click", "#clear-verify-button")
+def clear_verify():
+    web.page["verify-public-key"].value = ""
+    web.page["verify-message"].value = ""
+    web.page["verify-signature"].value = ""
+    web.page["verify-use-existing-key"].checked = True
+    web.page["verify-public-key-section"].style["display"] = "none"
+    web.page["verify-status"].hidden = True
 
 
 update_algorithm_info()

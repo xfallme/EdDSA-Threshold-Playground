@@ -271,13 +271,95 @@
         <div id="participants-status" class="status-box info" hidden></div>
     </section>
 
-    <section id="verify" class="tab" hidden></section>
+    <section id="verify" class="tab" hidden>
+        <div class="card">
+            <h2>Message Verification</h2>
+            <p>
+                Here you can verify a message and its signature using the group public key.
+            </p>
+            <p>
+                Please note that this verification is done using normal EdDSA and not the FROST protocol, since that is
+                the
+                whole point of running FROST with Ed25519/Ed448.
+            </p>
+            <p>
+                This means, any verifier that adheres to the EdDSA standard can verify the signature, without needing to
+                know about FROST or the threshold
+                scheme.
+
+                For example, you can use my <a target="_blank"
+                    href="https://xfallme.github.io/EdDSA-Threshold-Playground/playground-eddsa.html">EdDSA
+                    playground</a>.
+            </p>
+        </div>
+        <div class="card">
+            <h2>Verification</h2>
+
+            <div class="form-group">
+                <div class="inline-field">
+                    <label for="verify-use-existing-key">Use Existing Key from the Trusted Dealer Tab</label>
+                    <input type="checkbox" id="verify-use-existing-key" checked />
+                </div>
+            </div>
+
+            <div id="verify-public-key-section" class="form-group" style="display: none;">
+                <div class="inline-field">
+                    <label for="verify-public-key-format">Public Key Format</label>
+                    <select id="verify-public-key-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+                </div>
+
+                <label id="verify-public-key-label" for="verify-public-key">Public Key</label>
+                <textarea id="verify-public-key" rows="3" spellcheck="false"
+                    placeholder="Enter public key..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="inline-field">
+                    <label for="verify-message-format">Message Format</label>
+                    <select id="verify-message-format">
+                        <option value="text">Text</option>
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+                </div>
+                <label for="verify-message">Message</label>
+                <textarea id="verify-message" rows="5" spellcheck="false"
+                    placeholder="Enter message to verify..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="inline-field">
+                    <label for="verify-signature-format">Signature Format</label>
+                    <select id="verify-signature-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String</option>
+                    </select>
+                </div>
+                <label id="verify-signature-label" for="verify-signature">Signature</label>
+                <textarea id="verify-signature" rows="3" spellcheck="false"
+                    placeholder="Enter signature to verify..."></textarea>
+            </div>
+
+            <div class="button-row">
+                <button id="verify-button" class="primary">Verify</button>
+                <button id="clear-verify-button">Clear</button>
+            </div>
+        </div>
+
+        <div id="verify-status" class="status-box success" hidden></div>
+    </section>
 
     <script type="py" src="./playground-frost.py" config="./pyscript-frost.json"></script>
 
     <script src="./util.js"></script>
     <script>
-        // Show/hide private key section based on checkbox
+        // Show/hide private/public key section based on checkbox
         const dealerUseExistingSecretCheckbox = document.getElementById("dealer-use-existing-secret");
         const dealerExistingSecretSection = document.getElementById("dealer-existing-secret-section");
 
@@ -287,6 +369,18 @@
                 dealerExistingSecretSection.style.display = "none";
             } else {
                 dealerExistingSecretSection.style.display = "flex";
+            }
+        });
+
+        const verifyUseExistingKeyCheckbox = document.getElementById("verify-use-existing-key");
+        const verifyPublicKeySection = document.getElementById("verify-public-key-section");
+
+        verifyUseExistingKeyCheckbox.addEventListener("change", () => {
+            const useExistingKey = verifyUseExistingKeyCheckbox.checked;
+            if (useExistingKey) {
+                verifyPublicKeySection.style.display = "none";
+            } else {
+                verifyPublicKeySection.style.display = "flex";
             }
         });
 
