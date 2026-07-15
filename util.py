@@ -28,15 +28,19 @@ def set_output_format_element_override(output_element: str, format_element: str,
         data, ''.join(web.page[format_element].value))
     
 
-def add_format_change_listener(output_element: str, format_element: str):
+def add_format_change_listener(output_element: str, format_element: str, status_element: str):
     def on_format_change(event):
         current_format = ''.join(web.page[format_element].value)
         previous_format = web.page[format_element].dataset.previousFormat
         web.page[format_element].dataset.previousFormat = current_format
         
-        data = _decode_bytes(''.join(web.page[output_element].value), previous_format)
-        set_output_format_element_override(output_element, format_element, data)
-        
+        try:
+            data = _decode_bytes(''.join(web.page[output_element].value), previous_format)
+            set_output_format_element_override(output_element, format_element, data)
+            web.page[status_element].hidden = True
+        except Exception as e:
+            set_status(status_element, f"Error during conversion: {e}", "error")
+
     def on_focus(event):
         current_format = ''.join(web.page[format_element].value)
         web.page[format_element].dataset.previousFormat = current_format

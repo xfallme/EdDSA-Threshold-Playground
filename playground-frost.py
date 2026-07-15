@@ -17,7 +17,7 @@ from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
 from eddsa_threshold.eddsa.algorithms.ed25519 import Ed25519
 from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 
-from util import UserAbort, get_bytes_from_input, set_output, set_status, add_format_change_listener
+from util import UserAbort, get_bytes_from_input, get_short_session_id_with_dots, set_output, set_status, add_format_change_listener
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519Curve, Ed25519FrostHashing),
@@ -55,10 +55,15 @@ def clear_all(event):
         return
 
     # trusted dealer tab
-    clear_dealer_input()
+    web.page["participant-count"].value = "3"
+    web.page["threshold"].value = "2"
+    web.page["dealer-use-existing-secret"].checked = True
+    web.page["dealer-existing-secret-section"].style["display"] = "none"
+    web.page["dealer-existing-secret"].value = ""
     web.page["group-public-key-output"].value = ""
     web.page["dealer-status"].hidden = True
     web.page["dealer-generate-button"].disabled = False
+    web.page["dealer-existing-secret"].disabled = False
 
     # coordinator tab
     clear_signing_session_input()
@@ -117,9 +122,16 @@ def generate():
 
         coordinator = CoordinatorView(
             threshold, participant_ids, frost_hashing, curve)
-        # TODO: get existing secret
-        trusted_dealer = FrostTrustedDealer.generate(
-            threshold, participant_ids, participant_connections_dealer, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
+        # get existing secret and lock input
+        if not web.page["dealer-use-existing-secret"].checked:
+            existing_secret = get_bytes_from_input(
+                "dealer-existing-secret", status_element)
+            trusted_dealer = FrostTrustedDealer.from_private_bytes(
+                existing_secret, threshold, participant_ids, participant_connections_dealer, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
+        else:
+            trusted_dealer = FrostTrustedDealer.generate(
+                threshold, participant_ids, participant_connections_dealer, lambda vss_commitment: coordinator.set_dealer_info(vss_commitment), curve)
+        web.page["dealer-existing-secret"].disabled = True
 
         for p_i in participants.values():
             p_i.set_coordinator_connections(
@@ -145,6 +157,7 @@ def generate():
         set_status(
             status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")
 
+        web.page["coordinator-message"].disabled = False
         web.page["coordinator-create-signing-session-button"].disabled = False
         web.page["dealer-generate-button"].disabled = True
         web.page["coordinator-status"].hidden = True
@@ -152,15 +165,6 @@ def generate():
     except ValueError as e:
         set_status(status_element, f"Error generating shares: {e}", "error")
         return
-
-
-@when("click", "#dealer-clear-button")
-def clear_dealer_input():
-    web.page["participant-count"].value = "3"
-    web.page["threshold"].value = "2"
-    web.page["dealer-use-existing-secret"].checked = True
-    web.page["dealer-existing-secret-section"].style["display"] = "none"
-    web.page["dealer-existing-secret"].value = ""
 
 
 @when("click", "#coordinator-create-signing-session-button")
@@ -181,9 +185,13 @@ def create_signing_session():
         add_event_listener(
             web.page[f"coordinator-session-aggregate-signature-{id}-button"], "click", aggregate_session)
         # has to be done here, because this button doesn't exist when JS runs over all buttons
-        copyToClipboard(web.page[f"coordinator-session-copy-signature-{id}-button"])
+        copyToClipboard(
+            web.page[f"coordinator-session-copy-signature-{id}-button"])
         add_format_change_listener(
-            f"coordinator-session-signature-{id}", f"coordinator-session-signature-{id}-format")
+            f"coordinator-session-signature-{id}", f"coordinator-session-signature-{id}-format", status_element)
+
+        set_status(status_element,
+                   f"Successfully created signing session {get_short_session_id_with_dots(id)}. Participants can now join the session and start signing.", "success")
     except UserAbort:
         # already handled
         pass
@@ -294,6 +302,9 @@ def clear_verify():
 update_algorithm_info()
 
 # format change listeners for all input/output elements that are present at site creation
+add_format_change_listener("dealer-existing-secret",
+                           "dealer-existing-secret-format", "dealer-status")
 add_format_change_listener("group-public-key-output",
-                           "group-public-key-output-format")
-add_format_change_listener("coordinator-message", "coordinator-message-format")
+                           "group-public-key-output-format", "dealer-status")
+add_format_change_listener("coordinator-message",
+                           "coordinator-message-format", "coordinator-status")

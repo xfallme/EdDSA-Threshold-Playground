@@ -1,6 +1,6 @@
 {
     "packages": [
-        "eddsa-threshold>=0.2.0.alpha3"
+        "eddsa-threshold>=0.2.0.alpha4"
     ],
     "fetch": [
         {
