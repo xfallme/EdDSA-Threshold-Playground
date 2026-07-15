@@ -111,8 +111,9 @@ class CoordinatorView:
             
             web.page[f"coordinator-session-start-signing-{session_id}"].disabled = True
             self.update_session_info(session_id)
+            set_status(self._STATUS_ELEMENT, f"Signing session {get_short_session_id_with_dots(session_id)} started successfully.", "success")
         except Exception as e:
-            set_status(self._STATUS_ELEMENT, f"Error starting signing session {session_id}: {str(e)}", "error")
+            set_status(self._STATUS_ELEMENT, f"Error starting signing session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
 
     def receive_commitment(self, session_id: SessionId, participant_id: ParticipantId, commitment: NonceCommitment) -> None:
         self._COORDINATOR.receive_commitment(
@@ -140,3 +141,4 @@ class CoordinatorView:
         set_output(
             f"coordinator-session-signature-{session_id}", signature)
         web.page[f"coordinator-session-aggregate-signature-{session_id}-button"].disabled = True
+        set_status(self._STATUS_ELEMENT, f"Successfully aggregated signature for session {get_short_session_id_with_dots(session_id)}.", "success")

@@ -2,6 +2,8 @@ from base64 import b64encode, b64decode
 import ast
 from pyscript import web
 
+from eddsa_threshold.frost.core.frost_types import SessionId
+
 
 class UserAbort(Exception):
     pass
@@ -78,5 +80,5 @@ def _decode_bytes(data: str, fmt: str, status_element: str) -> bytes:
     set_status(status_element, f"Unsupported format: {fmt}", "error")
     raise ValueError(f"Unsupported format: {fmt}")
 
-def get_short_session_id_with_dots(session_id: str) -> str:
+def get_short_session_id_with_dots(session_id: str | SessionId) -> str:
     return str(session_id)[:8] + "..." + str(session_id)[-8:]

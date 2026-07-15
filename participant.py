@@ -94,8 +94,9 @@ class ParticipantView:
                 session_id, self.ID, self._PARTICIPANT.round_one_commit(session_id))
             self._participant_sessions[session_id].committed = True
             self.update_session_info(session_id)
+            set_status(self._STATUS_ELEMENT, f"Round one commit for session {get_short_session_id_with_dots(session_id)} completed successfully.", "success")
         except Exception as e:
-            set_status(self._STATUS_ELEMENT, f"Error during round one commit for session {session_id}: {str(e)}", "error")
+            set_status(self._STATUS_ELEMENT, f"Error during round one commit for session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
 
     def receive_signing_package(self, signing_package: SigningPackage) -> None:
         self._participant_sessions[signing_package.session_id].signing_package = signing_package
@@ -111,8 +112,9 @@ class ParticipantView:
                 session_id, self.ID, self._PARTICIPANT.round_two_sign(signing_package))
             self._participant_sessions[session_id].signed = True
             self.update_session_info(session_id)
+            set_status(self._STATUS_ELEMENT, f"Round two sign for session {get_short_session_id_with_dots(session_id)} completed successfully.", "success")
         except Exception as e:
-            set_status(self._STATUS_ELEMENT, f"Error during round two sign for session {session_id}: {str(e)}", "error")
+            set_status(self._STATUS_ELEMENT, f"Error during round two sign for session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
 
     def update_session_info(self, session_id: SessionId) -> None:
         joined = self._participant_sessions[session_id].joined
