@@ -4,7 +4,7 @@ from typing import Callable
 from pyscript import web
 
 from eddsa_threshold.frost.coordinator import FrostCoordinator
-from eddsa_threshold.frost.core.frost_types import NonceCommitment, ParticipantId, SecretValue, SecretValue, SessionId, SigningPackage, VSSCommitment
+from eddsa_threshold.frost.core.frost_types import NonceCommitment, ParticipantId, SecretValue, SecretValue, SessionId, VSSCommitment
 from eddsa_threshold.eddsa.curves.base.edwards_curve import EdwardsCurve
 from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 
@@ -25,7 +25,7 @@ class CoordinatorView:
     def group_public_key(self) -> bytes:
         return self._COORDINATOR._GROUP_INFO.group_public_key
 
-    def set_participant_connections(self, participant_connections: dict[ParticipantId, Callable[[SigningPackage], None]]) -> None:
+    def set_participant_connections(self, participant_connections: dict[ParticipantId, dict[str, Callable]]) -> None:
         self._participant_connections = participant_connections
 
     def set_dealer_info(self, vss_commitment: list[VSSCommitment]) -> None:
@@ -108,6 +108,8 @@ class CoordinatorView:
     def start_signing_session(self, session_id: SessionId) -> None:
         self._COORDINATOR.start_signing_session(session_id)
         self.set_state_badges(session_id)
+        for participant_id in self._COORDINATOR._signing_sessions[session_id].participant_ids:
+            self._participant_connections[participant_id]["start_signing_session"](session_id)
 
     def receive_commitment(self, session_id: SessionId, participant_id: ParticipantId, commitment: NonceCommitment) -> None:
         self._COORDINATOR.receive_commitment(
@@ -118,7 +120,7 @@ class CoordinatorView:
         signing_package = self._COORDINATOR.create_signing_package(session_id)
         self.set_state_badges(session_id)
         for participant_id in signing_package.participant_ids:
-            self._participant_connections[participant_id](signing_package)
+            self._participant_connections[participant_id]["distribute_signing_package"](signing_package)
 
     def receive_signature_share(self, session_id: SessionId, participant_id: ParticipantId, signature_share: SecretValue) -> None:
         self._COORDINATOR.receive_signature_share(

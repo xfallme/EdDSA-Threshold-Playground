@@ -127,7 +127,9 @@ def generate():
                 lambda session_id, participant_id, signature_share, coordinator=coordinator: coordinator.receive_signature_share(
                     session_id, participant_id, signature_share)
             )
-            participant_connections_coordinator[p_i.ID] = lambda signing_package, p=p_i: p.receive_signing_package(
+            participant_connections_coordinator[p_i.ID]["start_signing_session"] = lambda session_id, p=p_i: p.mark_session_as_started(
+                session_id)
+            participant_connections_coordinator[p_i.ID]["distribute_signing_package"] = lambda signing_package, p=p_i: p.receive_signing_package(
                 signing_package)
 
         coordinator.set_participant_connections(
@@ -183,13 +185,40 @@ def clear_signing_session_input():
 
 def join_session(event):
     # listener added by add_event_listener in generate() to avoid issues with participant IDs not being available at the time of adding the listener
-    participant_id = event.target.dataset.id
+    participant_id = ParticipantId(event.target.dataset.pid)
     session_id_str = web.page[f"participant-available-sessions-{participant_id}"].value
     if session_id_str == "":
         return
 
     session_id = SessionId(session_id_str)
-    participants[int(participant_id)].join_session_by_id(session_id)
+    participants[participant_id].join_session_by_id(session_id)
+    participants[participant_id].update_session_info(session_id)
+    coordinator.update_session_info(session_id)
+
+    # add listeners for commit and sign buttons
+    add_event_listener(
+        web.page[f"participant-{participant_id}-session-{session_id}-commit-button"], "click", commit_to_session)
+    add_event_listener(
+        web.page[f"participant-{participant_id}-session-{session_id}-sign-button"], "click", sign_session)
+
+
+def commit_to_session(event):
+    # listener added by add_event_listener in join_session() to avoid issues with participant IDs not being available at the time of adding the listener
+    participant_id = ParticipantId(event.target.dataset.pid)
+    session_id = SessionId(event.target.dataset.sid)
+
+    participants[participant_id].round_one_commit(session_id)
+    participants[participant_id].update_session_info(session_id)
+    coordinator.update_session_info(session_id)
+
+
+def sign_session(event):
+    # listener added by add_event_listener in join_session() to avoid issues with participant IDs not being available at the time of adding the listener
+    participant_id = ParticipantId(event.target.dataset.pid)
+    session_id = SessionId(event.target.dataset.sid)
+
+    participants[participant_id].round_two_sign(session_id)
+    participants[participant_id].update_session_info(session_id)
     coordinator.update_session_info(session_id)
 
 

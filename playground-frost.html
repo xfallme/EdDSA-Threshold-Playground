@@ -84,7 +84,7 @@
 
             <div class="form-group">
                 <label id="group-public-key-label" for="group-public-key">Group Public Key</label>
-                <textarea id="group-public-key" rows="3" disabled
+                <textarea id="group-public-key" rows="3" disabled spellcheck="false"
                     placeholder="Group public key will appear here..."></textarea>
                 <button class="copy-button" data-copy-target="group-public-key">📋 Copy</button>
             </div>
@@ -224,11 +224,27 @@
                         <option value="">-- Select a session --</option>
                     </select>
 
-                    <button id="participant-join-session-button-{participant_id}" class="primary" data-id="{participant_id}">Join Session</button>
+                    <button id="participant-join-session-button-{participant_id}" class="primary"
+                        data-pid="{participant_id}">Join Session</button>
                 </div>
+
+                <div id="participant-sessions-container-{participant_id}"></div>
 
                 <div id="participant-status-{participant_id}" class="status-box info" hidden></div>
             </details>
+        </template>
+
+        <template id="participant-session-template">
+            <div class="form-group">
+                <label for="participant-{participant_id}-session-{session_id}">Session {session_id}</label>
+                <textarea id="participant-{participant_id}-session-{session_id}" rows="6" disabled
+                    spellcheck="false"></textarea>
+
+                <div class="button-row">
+                    <button id="participant-{participant_id}-session-{session_id}-commit-button" data-pid="{participant_id}" data-sid="{session_id}">Commit</button>
+                    <button id="participant-{participant_id}-session-{session_id}-sign-button" data-pid="{participant_id}" data-sid="{session_id}">Sign</button>
+                </div>
+            </div>
         </template>
 
         <div id="participants-status" class="status-box info" hidden></div>
