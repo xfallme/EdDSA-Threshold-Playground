@@ -1,5 +1,6 @@
 from base64 import b64encode, b64decode
 import ast
+from typing import List
 from pyscript import web
 from pyodide.ffi.wrappers import add_event_listener
 
@@ -28,16 +29,25 @@ def set_output_format_element_override(output_element: str, format_element: str,
         data, ''.join(web.page[format_element].value))
     
 
-def add_format_change_listener(output_element: str, format_element: str, status_element: str):
+def add_format_change_listener(output_element: str | List[str], format_element: str, status_element: str):
     def on_format_change(event):
         current_format = ''.join(web.page[format_element].value)
         previous_format = web.page[format_element].dataset.previousFormat
         web.page[format_element].dataset.previousFormat = current_format
         
+        if current_format == previous_format:
+            return
+        
         try:
-            data = _decode_bytes(''.join(web.page[output_element].value), previous_format)
-            set_output_format_element_override(output_element, format_element, data)
-            web.page[status_element].hidden = True
+            if isinstance(output_element, List):
+                for oe in output_element:
+                    data = _decode_bytes(''.join(web.page[oe].value), previous_format)
+                    set_output_format_element_override(oe, format_element, data)
+                    web.page[status_element].hidden = True
+            else:
+                data = _decode_bytes(''.join(web.page[output_element].value), previous_format)
+                set_output_format_element_override(output_element, format_element, data)
+                web.page[status_element].hidden = True
         except Exception as e:
             set_status(status_element, f"Error during conversion: {e}", "error")
 

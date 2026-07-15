@@ -303,9 +303,5 @@ def clear_verify():
 update_algorithm_info()
 
 # format change listeners for all input/output elements that are present at site creation
-add_format_change_listener("dealer-existing-secret",
-                           "dealer-existing-secret-format", "dealer-status")
 add_format_change_listener("group-public-key-output",
                            "group-public-key-output-format", "dealer-status")
-add_format_change_listener("coordinator-message",
-                           "coordinator-message-format", "coordinator-status")

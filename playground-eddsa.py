@@ -11,7 +11,7 @@ from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 from eddsa_threshold.eddsa.algorithms.ed448ph import Ed448PH
 from eddsa_threshold.eddsa.keys.ed448_keypair import Ed448Keypair
 
-from util import UserAbort, get_bytes_from_input, set_output, set_output_format_element_override, set_status
+from util import UserAbort, get_bytes_from_input, set_output, set_output_format_element_override, set_status, add_format_change_listener
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519, Ed25519Keypair),
@@ -48,6 +48,9 @@ def update_algorithm_info():
 def generate_keypair():
     global keypair_cls
     global keypair
+    
+    web.page["keygen-output-format"].disabled = False
+    web.page["keygen-existing-key-output-format"].disabled = False
 
     keypair = keypair_cls.generate()
     set_output_format_element_override(
@@ -56,6 +59,8 @@ def generate_keypair():
         "public-key-output", "keygen-output-format", keypair.public_bytes)
     set_status("keygen-status",
                "Keypair generated successfully. It is now stored and ready to use in the other tabs.", "success")
+    
+    web.page["keygen-existing-key-output-format"].disabled = True
 
 
 @when("click", "#clear-keypair-button")
@@ -66,6 +71,8 @@ def clear_keypair():
     web.page["private-key-output"].value = ""
     web.page["public-key-output"].value = ""
     web.page["keygen-status"].hidden = True
+    web.page["keygen-output-format"].disabled = False
+    web.page["keygen-existing-key-output-format"].disabled = False
 
 
 @when("click", "#existing-keypair-button")
@@ -74,6 +81,8 @@ def derive_keypair():
     global keypair
 
     status_element = "keygen-status"
+    web.page["keygen-output-format"].disabled = False
+    web.page["keygen-existing-key-output-format"].disabled = False
 
     try:
         private_key_input = get_bytes_from_input(
@@ -86,6 +95,8 @@ def derive_keypair():
             "public-key-output", "keygen-existing-key-output-format", keypair.public_bytes)
         set_status(status_element,
                    "Keypair derived successfully. It is now stored and ready to use in the other tabs.", "success")
+        
+        web.page["keygen-output-format"].disabled = True
     except UserAbort:
         # already handled
         pass
@@ -210,3 +221,8 @@ def clear_verify():
 
 # Initialize algorithm and keypair classes on page load
 update_algorithm_info()
+
+# format change listeners for all input/output elements that are present at site creation
+add_format_change_listener(["private-key-output", "public-key-output"], "keygen-output-format", "keygen-status")
+add_format_change_listener(["private-key-output", "public-key-output"], "keygen-existing-key-output-format", "keygen-status")
+add_format_change_listener("sign-signature-output", "sign-signature-output-format", "sign-status")
