@@ -33,11 +33,18 @@ frost_hashing = FrostHashing | None
 
 
 @when("change", "#algorithm")
-def update_algorithm_info():
+def update_algorithm_info(event):
     global curve
     global frost_hashing
 
     selected_algorithm = ''.join(web.page["algorithm"].value)
+    if event is not None and not window.confirm("Are you sure you want to switch algorithms? This will remove all participants, coordinator, and dealer information."):
+        # quick and dirty way to revert the selection back to the previous value
+        if selected_algorithm == "ed25519":
+            web.page["algorithm"].value = "ed448"
+        else:
+            web.page["algorithm"].value = "ed25519"
+        return
 
     curve_cls, frost_hashing_cls = ALGORITHMS[selected_algorithm]
     curve = curve_cls()
@@ -305,7 +312,7 @@ def clear_verify():
     web.page["verify-status"].hidden = True
 
 
-update_algorithm_info()
+update_algorithm_info(None)
 
 # format change listeners for all input/output elements that are present at site creation
 add_format_change_listener(["group-public-key-output", "group-secret-output"],
