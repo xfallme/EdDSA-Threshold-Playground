@@ -8,7 +8,7 @@ from eddsa_threshold.frost.core.frost_types import NonceCommitment, ParticipantI
 from eddsa_threshold.eddsa.curves.base.edwards_curve import EdwardsCurve
 from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 
-from util import get_short_session_id, get_short_session_id_with_dots, set_output
+from util import get_short_session_id_with_dots, set_output, set_status
 
 
 def set_state_badge_class(element_id: str, state: str):
@@ -20,6 +20,7 @@ class CoordinatorView:
         self._COORDINATOR = FrostCoordinator(
             threshold, participant_ids, hashing, curve)
         self._session_info_html: str | None = None
+        self._STATUS_ELEMENT = "coordinator-status"
 
     @property
     def group_public_key(self) -> bytes:
@@ -35,7 +36,6 @@ class CoordinatorView:
         id = self._COORDINATOR.create_signing_session(message)
 
         id_str = str(id)
-        short_id = get_short_session_id(id_str)
 
         if self._session_info_html is None:
             session_template = web.page["coordinator-session-template"].innerHTML
@@ -43,7 +43,7 @@ class CoordinatorView:
                 r">\s+<", "><", re.sub(r"\s+", " ", session_template)).strip()
 
         html = self._session_info_html.replace(
-            "{session_id}", get_short_session_id_with_dots(id_str)).replace("{short_id}", short_id)
+            "{session_id}", id_str).replace("{short_id}", get_short_session_id_with_dots(id_str))
 
         web.page["coordinator-sessions-container"].insertAdjacentHTML(
             "beforeend", html)
@@ -53,52 +53,49 @@ class CoordinatorView:
         return id
 
     def update_session_info(self, session_id: SessionId) -> None:
-        short_id = get_short_session_id(str(session_id))
-
         signing_session = self._COORDINATOR._signing_sessions[session_id]
 
-        web.page[f"coordinator-session-id-{short_id}"].value = session_id
-        web.page[f"coordinator-session-message-{short_id}"].value = signing_session.message
+        web.page[f"coordinator-session-id-{session_id}"].value = session_id
+        web.page[f"coordinator-session-message-{session_id}"].value = signing_session.message
         if signing_session.participant_ids:
-            web.page[f"coordinator-session-participant-ids-{short_id}"].value = str(
+            web.page[f"coordinator-session-participant-ids-{session_id}"].value = str(
                 signing_session.participant_ids)
         if signing_session.commitments:
-            web.page[f"coordinator-session-commitments-{short_id}"].value = str(
+            web.page[f"coordinator-session-commitments-{session_id}"].value = str(
                 signing_session.commitments)
         if signing_session.signature_shares:
-            web.page[f"coordinator-session-signature-shares-{short_id}"].value = str(
+            web.page[f"coordinator-session-signature-shares-{session_id}"].value = str(
                 signing_session.signature_shares)
 
         self.set_state_badges(session_id)
 
     def set_state_badges(self, session_id: SessionId) -> None:
-        short_id = get_short_session_id(str(session_id))
         signing_session = self._COORDINATOR._signing_sessions[session_id]
 
         if signing_session.signing_in_progress:
             if signing_session.session_completed:
                 set_state_badge_class(
-                    f"coordinator-session-completed-{short_id}", "done")
+                    f"coordinator-session-completed-{session_id}", "done")
                 set_state_badge_class(
-                    f"coordinator-session-signing-in-progress-{short_id}", "done")
+                    f"coordinator-session-signing-in-progress-{session_id}", "done")
             else:
                 set_state_badge_class(
-                    f"coordinator-session-signing-in-progress-{short_id}", "current")
+                    f"coordinator-session-signing-in-progress-{session_id}", "current")
 
             if signing_session.round_two_completed:
                 set_state_badge_class(
-                    f"coordinator-session-round-one-completed-{short_id}", "done")
+                    f"coordinator-session-round-one-completed-{session_id}", "done")
                 set_state_badge_class(
-                    f"coordinator-session-round-two-completed-{short_id}", "done")
+                    f"coordinator-session-round-two-completed-{session_id}", "done")
             else:
                 if signing_session.round_one_completed:
                     set_state_badge_class(
-                        f"coordinator-session-round-one-completed-{short_id}", "done")
+                        f"coordinator-session-round-one-completed-{session_id}", "done")
                     set_state_badge_class(
-                        f"coordinator-session-round-two-completed-{short_id}", "current")
+                        f"coordinator-session-round-two-completed-{session_id}", "current")
                 else:
                     set_state_badge_class(
-                        f"coordinator-session-round-one-completed-{short_id}", "current")
+                        f"coordinator-session-round-one-completed-{session_id}", "current")
 
     def register_participant_to_session(self, session_id: SessionId, participant_id: ParticipantId) -> None:
         self._COORDINATOR.register_participant_to_session(
@@ -106,14 +103,22 @@ class CoordinatorView:
         self.update_session_info(session_id)
 
     def start_signing_session(self, session_id: SessionId) -> None:
-        self._COORDINATOR.start_signing_session(session_id)
-        self.set_state_badges(session_id)
-        for participant_id in self._COORDINATOR._signing_sessions[session_id].participant_ids:
-            self._participant_connections[participant_id]["start_signing_session"](session_id)
+        try:
+            self._COORDINATOR.start_signing_session(session_id)
+            self.set_state_badges(session_id)
+            for participant_id in self._COORDINATOR._signing_sessions[session_id].participant_ids:
+                self._participant_connections[participant_id]["start_signing_session"](session_id)
+            
+            web.page[f"coordinator-session-start-signing-{session_id}"].disabled = True
+            self.update_session_info(session_id)
+        except Exception as e:
+            set_status(self._STATUS_ELEMENT, f"Error starting signing session {session_id}: {str(e)}", "error")
 
     def receive_commitment(self, session_id: SessionId, participant_id: ParticipantId, commitment: NonceCommitment) -> None:
         self._COORDINATOR.receive_commitment(
             session_id, participant_id, commitment)
+        if self._COORDINATOR._signing_sessions[session_id].round_one_completed:
+            self.distribute_signing_package(session_id)
         self.update_session_info(session_id)
 
     def distribute_signing_package(self, session_id: SessionId) -> None:
@@ -125,10 +130,13 @@ class CoordinatorView:
     def receive_signature_share(self, session_id: SessionId, participant_id: ParticipantId, signature_share: SecretValue) -> None:
         self._COORDINATOR.receive_signature_share(
             session_id, participant_id, signature_share)
+        if self._COORDINATOR._signing_sessions[session_id].round_two_completed:
+            web.page[f"coordinator-session-aggregate-signature-{session_id}-button"].disabled = False
         self.update_session_info(session_id)
 
     def aggregate(self, session_id: SessionId) -> None:
         signature = self._COORDINATOR.aggregate(session_id)
         self.set_state_badges(session_id)
         set_output(
-            f"coordinator-session-signature-{get_short_session_id(str(session_id))}", signature)
+            f"coordinator-session-signature-{session_id}", signature)
+        web.page[f"coordinator-session-aggregate-signature-{session_id}-button"].disabled = True

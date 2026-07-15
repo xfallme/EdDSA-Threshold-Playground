@@ -100,7 +100,7 @@ def generate():
 
     participants = {}
     participant_connections_dealer = {}
-    participant_connections_coordinator = {}
+    participant_connections_coordinator = {i: {} for i in participant_ids}
 
     try:
         for i in participant_ids:
@@ -173,6 +173,11 @@ def create_signing_session():
 
         for p in participants.values():
             p.add_available_session(id)
+
+        add_event_listener(
+            web.page[f"coordinator-session-start-signing-{id}"], "click", start_session)
+        add_event_listener(
+            web.page[f"coordinator-session-aggregate-signature-{id}-button"], "click", aggregate_session)
     except UserAbort:
         # already handled
         pass
@@ -181,6 +186,12 @@ def create_signing_session():
 @when("click", "#coordinator-clear-button")
 def clear_signing_session_input():
     web.page["coordinator-message"].value = ""
+
+
+def start_session(event):
+    # listener added by add_event_listener in create_signing_session() to avoid issues with participant IDs not being available at the time of adding the listener
+    session_id = SessionId(event.target.dataset.sid)
+    coordinator.start_signing_session(session_id)
 
 
 def join_session(event):
@@ -192,7 +203,6 @@ def join_session(event):
 
     session_id = SessionId(session_id_str)
     participants[participant_id].join_session_by_id(session_id)
-    participants[participant_id].update_session_info(session_id)
     coordinator.update_session_info(session_id)
 
     # add listeners for commit and sign buttons
@@ -208,7 +218,6 @@ def commit_to_session(event):
     session_id = SessionId(event.target.dataset.sid)
 
     participants[participant_id].round_one_commit(session_id)
-    participants[participant_id].update_session_info(session_id)
     coordinator.update_session_info(session_id)
 
 
@@ -218,8 +227,12 @@ def sign_session(event):
     session_id = SessionId(event.target.dataset.sid)
 
     participants[participant_id].round_two_sign(session_id)
-    participants[participant_id].update_session_info(session_id)
     coordinator.update_session_info(session_id)
 
+
+def aggregate_session(event):
+    # listener added by add_event_listener in create_signing_session() to avoid issues with participant IDs not being available at the time of adding the listener
+    session_id = SessionId(event.target.dataset.sid)
+    coordinator.aggregate(session_id)
 
 update_algorithm_info()

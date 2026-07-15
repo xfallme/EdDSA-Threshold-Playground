@@ -125,39 +125,39 @@
             <details class="card session-card">
                 <summary>
                     <span class="session-title">
-                        Signing Session {session_id}
+                        Signing Session {short_id}
                     </span>
                 </summary>
 
                 <div class="form-group">
-                    <label for="coordinator-session-id-{short_id}">Session ID</label>
-                    <textarea id="coordinator-session-id-{short_id}" rows="1" disabled spellcheck="false"
+                    <label for="coordinator-session-id-{session_id}">Session ID</label>
+                    <textarea id="coordinator-session-id-{session_id}" rows="1" disabled spellcheck="false"
                         placeholder="Session ID will appear here..."></textarea>
-                    <button class="copy-button" data-copy-target="coordinator-session-id-{short_id}">📋 Copy</button>
+                    <button class="copy-button" data-copy-target="coordinator-session-id-{session_id}">📋 Copy</button>
                 </div>
 
                 <div class="form-group">
-                    <label for="coordinator-session-message-{short_id}">Message</label>
-                    <textarea id="coordinator-session-message-{short_id}" rows="1" disabled spellcheck="false"
+                    <label for="coordinator-session-message-{session_id}">Message</label>
+                    <textarea id="coordinator-session-message-{session_id}" rows="1" disabled spellcheck="false"
                         placeholder="Message will appear here..."></textarea>
-                    <button class="copy-button" data-copy-target="coordinator-session-message-{short_id}">📋
+                    <button class="copy-button" data-copy-target="coordinator-session-message-{session_id}">📋
                         Copy</button>
                 </div>
 
                 <div class="form-group">
-                    <label for="coordinator-session-participant-ids-{short_id}">Participant IDs</label>
-                    <textarea id="coordinator-session-participant-ids-{short_id}" rows="1" disabled spellcheck="false"
+                    <label for="coordinator-session-participant-ids-{session_id}">Participant IDs</label>
+                    <textarea id="coordinator-session-participant-ids-{session_id}" rows="1" disabled spellcheck="false"
                         placeholder="Participant IDs will appear here..."></textarea>
-                    <button class="copy-button" data-copy-target="coordinator-session-participant-ids-{short_id}">📋
+                    <button class="copy-button" data-copy-target="coordinator-session-participant-ids-{session_id}">📋
                         Copy</button>
                 </div>
 
                 <details class="form-group">
                     <summary>Commitments</summary>
                     <div class="form-group">
-                        <textarea id="coordinator-session-commitments-{short_id}" rows="1" disabled spellcheck="false"
+                        <textarea id="coordinator-session-commitments-{session_id}" rows="1" disabled spellcheck="false"
                             placeholder="Commitments..."></textarea>
-                        <button class="copy-button" data-copy-target="coordinator-session-commitments-{short_id}">📋
+                        <button class="copy-button" data-copy-target="coordinator-session-commitments-{session_id}">📋
                             Copy</button>
                     </div>
                 </details>
@@ -165,42 +165,50 @@
                 <details class="form-group">
                     <summary>Signature Shares</summary>
                     <div class="form-group">
-                        <textarea id="coordinator-session-signature-shares-{short_id}" rows="1" disabled
+                        <textarea id="coordinator-session-signature-shares-{session_id}" rows="1" disabled
                             spellcheck="false" placeholder="Signature Shares..."></textarea>
                         <button class="copy-button"
-                            data-copy-target="coordinator-session-signature-shares-{short_id}">📋
+                            data-copy-target="coordinator-session-signature-shares-{session_id}">📋
                             Copy</button>
                     </div>
                 </details>
 
                 <hr>
 
-                <div class="session-state">
-                    <span id="coordinator-session-signing-in-progress-{short_id}" class="state-badge">Signing</span>
-                    <span id="coordinator-session-round-one-completed-{short_id}" class="state-badge">Round 1</span>
-                    <span id="coordinator-session-round-two-completed-{short_id}" class="state-badge">Round 2</span>
-                    <span id="coordinator-session-completed-{short_id}" class="state-badge">Complete</span>
+                <div class="form-group">
+                    <div class="inline-field" style="justify-content: center;">
+                        <button id="coordinator-session-start-signing-{session_id}" class="primary" data-sid="{session_id}">Start Signing</button>
+                        <div class="session-state">
+                            <span id="coordinator-session-signing-in-progress-{session_id}"
+                                class="state-badge">Signing</span>
+                            <span id="coordinator-session-round-one-completed-{session_id}" class="state-badge">Round
+                                1</span>
+                            <span id="coordinator-session-round-two-completed-{session_id}" class="state-badge">Round
+                                2</span>
+                            <span id="coordinator-session-completed-{session_id}" class="state-badge">Complete</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <div class="inline-field">
-                        <label for="coordinator-signature-format">Output Format</label>
-                        <select id="coordinator-signature-format">
+                        <label for="coordinator-session-signature-{session_id}-format">Output Format</label>
+                        <select id="coordinator-session-signature-{session_id}-format">
                             <option value="hex">Hex</option>
                             <option value="base64">Base64</option>
                             <option value="python">Python Byte String (b'...')</option>
                         </select>
-                        <button id="coordinator-aggregate-button" class="primary">Aggregate</button>
+                        <button id="coordinator-session-aggregate-signature-{session_id}-button" class="primary" data-sid="{session_id}" disabled>Aggregate</button>
                     </div>
 
-                    <label for="coordinator-session-signature-{short_id}">Signature</label>
-                    <textarea id="coordinator-session-signature-{short_id}" rows="1" disabled spellcheck="false"
+                    <label for="coordinator-session-signature-{session_id}">Signature</label>
+                    <textarea id="coordinator-session-signature-{session_id}" rows="1" disabled spellcheck="false"
                         placeholder="Signature will appear here..."></textarea>
-                    <button class="copy-button" data-copy-target="coordinator-session-signature-{short_id}">📋
+                    <button class="copy-button" data-copy-target="coordinator-session-signature-{session_id}">📋
                         Copy</button>
                 </div>
 
-                <div id="coordinator-session-status-{short_id}" class="status-box info" hidden></div>
+                <div id="coordinator-session-status-{session_id}" class="status-box info" hidden></div>
             </details>
         </template>
 
@@ -241,8 +249,10 @@
                     spellcheck="false"></textarea>
 
                 <div class="button-row">
-                    <button id="participant-{participant_id}-session-{session_id}-commit-button" data-pid="{participant_id}" data-sid="{session_id}">Commit</button>
-                    <button id="participant-{participant_id}-session-{session_id}-sign-button" data-pid="{participant_id}" data-sid="{session_id}">Sign</button>
+                    <button id="participant-{participant_id}-session-{session_id}-commit-button"
+                        data-pid="{participant_id}" data-sid="{session_id}">Commit</button>
+                    <button id="participant-{participant_id}-session-{session_id}-sign-button"
+                        data-pid="{participant_id}" data-sid="{session_id}">Sign</button>
                 </div>
             </div>
         </template>

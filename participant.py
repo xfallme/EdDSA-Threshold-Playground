@@ -75,6 +75,7 @@ class ParticipantView:
 
         web.page[f"participant-sessions-container-{self.ID}"].insertAdjacentHTML(
             "beforeend", session_html)
+        self.update_session_info(session_id)
         
     def mark_session_as_started(self, session_id: SessionId) -> None:
         if session_id not in self._participant_sessions:
@@ -92,11 +93,13 @@ class ParticipantView:
             self._coordinator_round_one(
                 session_id, self.ID, self._PARTICIPANT.round_one_commit(session_id))
             self._participant_sessions[session_id].committed = True
+            self.update_session_info(session_id)
         except Exception as e:
             set_status(self._STATUS_ELEMENT, f"Error during round one commit for session {session_id}: {str(e)}", "error")
 
     def receive_signing_package(self, signing_package: SigningPackage) -> None:
         self._participant_sessions[signing_package.session_id].signing_package = signing_package
+        self.update_session_info(signing_package.session_id)
 
     def round_two_sign(self, session_id: SessionId) -> None:
         signing_package = self._participant_sessions[session_id].signing_package
@@ -107,6 +110,7 @@ class ParticipantView:
             self._coordinator_round_two(
                 session_id, self.ID, self._PARTICIPANT.round_two_sign(signing_package))
             self._participant_sessions[session_id].signed = True
+            self.update_session_info(session_id)
         except Exception as e:
             set_status(self._STATUS_ELEMENT, f"Error during round two sign for session {session_id}: {str(e)}", "error")
 
