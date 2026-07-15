@@ -83,10 +83,19 @@
             <h2>Group Information</h2>
 
             <div class="form-group">
-                <label id="group-public-key-label" for="group-public-key">Group Public Key</label>
-                <textarea id="group-public-key" rows="3" disabled spellcheck="false"
+                <div class="inline-field">
+                    <label for="group-public-key-output-format">Output Format</label>
+                    <select id="group-public-key-output-format">
+                        <option value="hex">Hex</option>
+                        <option value="base64">Base64</option>
+                        <option value="python">Python Byte String (b'...')</option>
+                    </select>
+                </div>
+
+                <label id="group-public-key-output-label" for="group-public-key-output">Group Public Key</label>
+                <textarea id="group-public-key-output" rows="3" disabled spellcheck="false"
                     placeholder="Group public key will appear here..."></textarea>
-                <button class="copy-button" data-copy-target="group-public-key">📋 Copy</button>
+                <button class="copy-button" data-copy-target="group-public-key-output">📋 Copy</button>
             </div>
 
             <div id="dealer-status" class="status-box info" hidden></div>
@@ -177,7 +186,8 @@
 
                 <div class="form-group">
                     <div class="inline-field" style="justify-content: center;">
-                        <button id="coordinator-session-start-signing-{session_id}" class="primary" data-sid="{session_id}">Start Signing</button>
+                        <button id="coordinator-session-start-signing-{session_id}" class="primary"
+                            data-sid="{session_id}">Start Signing</button>
                         <div class="session-state">
                             <span id="coordinator-session-signing-in-progress-{session_id}"
                                 class="state-badge">Signing</span>
@@ -198,7 +208,8 @@
                             <option value="base64">Base64</option>
                             <option value="python">Python Byte String (b'...')</option>
                         </select>
-                        <button id="coordinator-session-aggregate-signature-{session_id}-button" class="primary" data-sid="{session_id}" disabled>Aggregate</button>
+                        <button id="coordinator-session-aggregate-signature-{session_id}-button" class="primary"
+                            data-sid="{session_id}" disabled>Aggregate</button>
                     </div>
 
                     <label for="coordinator-session-signature-{session_id}">Signature</label>
@@ -283,7 +294,7 @@
         const selectedAlgorithm = document.getElementById("algorithm");
 
         function updateLabels(algorithm) {
-            const groupPublicKeyLabel = document.getElementById("group-public-key-label");
+            const groupPublicKeyLabel = document.getElementById("group-public-key-output-label");
 
             if (algorithm === "ed25519") {
                 groupPublicKeyLabel.textContent = "Group Public Key (32 bytes)";

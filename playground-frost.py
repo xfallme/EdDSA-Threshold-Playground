@@ -14,7 +14,7 @@ from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 from eddsa_threshold.frost.core.ed25519.frost_hashing import Ed25519FrostHashing
 from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
 
-from util import UserAbort, get_bytes_from_input, set_status
+from util import UserAbort, get_bytes_from_input, set_output, set_status
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519Curve, Ed25519FrostHashing),
@@ -53,7 +53,7 @@ def clear_all(event):
 
     # trusted dealer tab
     clear_dealer_input()
-    web.page["group-public-key"].value = ""
+    web.page["group-public-key-output"].value = ""
     web.page["dealer-status"].hidden = True
     web.page["dealer-generate-button"].disabled = False
 
@@ -137,8 +137,7 @@ def generate():
 
         trusted_dealer.keygen()
 
-        # TODO: choose output format
-        web.page["group-public-key"].value = str(coordinator.group_public_key)
+        set_output("group-public-key-output", coordinator.group_public_key)
 
         set_status(
             status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")

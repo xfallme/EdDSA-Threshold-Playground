@@ -11,6 +11,7 @@ from eddsa_threshold.frost.core.base.frost_hashing import FrostHashing
 
 from util import get_short_session_id_with_dots, set_status
 
+
 @dataclass
 class ParticipantSession:
     joined: bool = False
@@ -18,9 +19,10 @@ class ParticipantSession:
     commitment: NonceCommitment | None = None
     committed: bool = False
     signing_package: SigningPackage | None = None
-    signature_share: SecretValue | None = None 
+    signature_share: SecretValue | None = None
     signed: bool = False
-    
+
+
 class ParticipantView:
     def __init__(self, participant_id: ParticipantId, threshold: int, max_participants: int, hashing: FrostHashing, curve: EdwardsCurve):
         self.ID = participant_id
@@ -64,7 +66,8 @@ class ParticipantView:
             raise ValueError(
                 f"Participant {self.ID} cannot join session {session_id} because it is not available")
         self._coordinator_register(session_id, self.ID)
-        self._participant_sessions[session_id] = ParticipantSession(joined=True)
+        self._participant_sessions[session_id] = ParticipantSession(
+            joined=True)
         self.remove_available_session(session_id)
 
         session_template = web.page["participant-session-template"].innerHTML
@@ -76,7 +79,7 @@ class ParticipantView:
         web.page[f"participant-sessions-container-{self.ID}"].insertAdjacentHTML(
             "beforeend", session_html)
         self.update_session_info(session_id)
-        
+
     def mark_session_as_started(self, session_id: SessionId) -> None:
         if session_id not in self._participant_sessions:
             raise ValueError(
@@ -94,9 +97,11 @@ class ParticipantView:
                 session_id, self.ID, self._PARTICIPANT.round_one_commit(session_id))
             self._participant_sessions[session_id].committed = True
             self.update_session_info(session_id)
-            set_status(self._STATUS_ELEMENT, f"Round one commit for session {get_short_session_id_with_dots(session_id)} completed successfully.", "success")
+            set_status(self._STATUS_ELEMENT,
+                       f"Round one commit for session {get_short_session_id_with_dots(session_id)} completed successfully.", "success")
         except Exception as e:
-            set_status(self._STATUS_ELEMENT, f"Error during round one commit for session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
+            set_status(self._STATUS_ELEMENT,
+                       f"Error during round one commit for session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
 
     def receive_signing_package(self, signing_package: SigningPackage) -> None:
         self._participant_sessions[signing_package.session_id].signing_package = signing_package
@@ -112,16 +117,18 @@ class ParticipantView:
                 session_id, self.ID, self._PARTICIPANT.round_two_sign(signing_package))
             self._participant_sessions[session_id].signed = True
             self.update_session_info(session_id)
-            set_status(self._STATUS_ELEMENT, f"Round two sign for session {get_short_session_id_with_dots(session_id)} completed successfully.", "success")
+            set_status(self._STATUS_ELEMENT,
+                       f"Round two sign for session {get_short_session_id_with_dots(session_id)} completed successfully.", "success")
         except Exception as e:
-            set_status(self._STATUS_ELEMENT, f"Error during round two sign for session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
+            set_status(self._STATUS_ELEMENT,
+                       f"Error during round two sign for session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
 
     def update_session_info(self, session_id: SessionId) -> None:
         joined = self._participant_sessions[session_id].joined
         started = self._participant_sessions[session_id].started
         committed = self._participant_sessions[session_id].committed
         signed = self._participant_sessions[session_id].signed
-        
+
         output = ""
         output += f"Joined: {joined}\n"
         output += f"Started: {started}\n"
@@ -132,7 +139,7 @@ class ParticipantView:
         output += f"Signed: {signed}"
 
         web.page[f"participant-{self.ID}-session-{session_id}"].value = output
-        
+
         if joined and started and not committed:
             web.page[f"participant-{self.ID}-session-{session_id}-commit-button"].disabled = False
             web.page[f"participant-{self.ID}-session-{session_id}-sign-button"].disabled = True

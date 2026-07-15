@@ -107,13 +107,16 @@ class CoordinatorView:
             self._COORDINATOR.start_signing_session(session_id)
             self.set_state_badges(session_id)
             for participant_id in self._COORDINATOR._signing_sessions[session_id].participant_ids:
-                self._participant_connections[participant_id]["start_signing_session"](session_id)
-            
+                self._participant_connections[participant_id]["start_signing_session"](
+                    session_id)
+
             web.page[f"coordinator-session-start-signing-{session_id}"].disabled = True
             self.update_session_info(session_id)
-            set_status(self._STATUS_ELEMENT, f"Signing session {get_short_session_id_with_dots(session_id)} started successfully.", "success")
+            set_status(self._STATUS_ELEMENT,
+                       f"Signing session {get_short_session_id_with_dots(session_id)} started successfully.", "success")
         except Exception as e:
-            set_status(self._STATUS_ELEMENT, f"Error starting signing session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
+            set_status(self._STATUS_ELEMENT,
+                       f"Error starting signing session {get_short_session_id_with_dots(session_id)}: {str(e)}", "error")
 
     def receive_commitment(self, session_id: SessionId, participant_id: ParticipantId, commitment: NonceCommitment) -> None:
         self._COORDINATOR.receive_commitment(
@@ -126,7 +129,8 @@ class CoordinatorView:
         signing_package = self._COORDINATOR.create_signing_package(session_id)
         self.set_state_badges(session_id)
         for participant_id in signing_package.participant_ids:
-            self._participant_connections[participant_id]["distribute_signing_package"](signing_package)
+            self._participant_connections[participant_id]["distribute_signing_package"](
+                signing_package)
 
     def receive_signature_share(self, session_id: SessionId, participant_id: ParticipantId, signature_share: SecretValue) -> None:
         self._COORDINATOR.receive_signature_share(
@@ -141,4 +145,5 @@ class CoordinatorView:
         set_output(
             f"coordinator-session-signature-{session_id}", signature)
         web.page[f"coordinator-session-aggregate-signature-{session_id}-button"].disabled = True
-        set_status(self._STATUS_ELEMENT, f"Successfully aggregated signature for session {get_short_session_id_with_dots(session_id)}.", "success")
+        set_status(self._STATUS_ELEMENT,
+                   f"Successfully aggregated signature for session {get_short_session_id_with_dots(session_id)}.", "success")
