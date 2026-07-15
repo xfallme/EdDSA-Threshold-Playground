@@ -83,13 +83,18 @@
 
             <div class="form-group">
                 <div class="inline-field">
-                    <label for="group-public-key-output-format">Output Format</label>
-                    <select id="group-public-key-output-format">
+                    <label for="group-info-output-format">Output Format</label>
+                    <select id="group-info-output-format">
                         <option value="hex">Hex</option>
                         <option value="base64">Base64</option>
                         <option value="python">Python Byte String (b'...')</option>
                     </select>
                 </div>
+
+                <label id="group-secret-output-label" for="group-secret-output">Group Secret</label>
+                <textarea id="group-secret-output" rows="3" disabled spellcheck="false"
+                    placeholder="Group secret will appear here..."></textarea>
+                <button class="copy-button" data-copy-target="group-secret-output">📋 Copy</button>
 
                 <label id="group-public-key-output-label" for="group-public-key-output">Group Public Key</label>
                 <textarea id="group-public-key-output" rows="3" disabled spellcheck="false"
@@ -387,12 +392,24 @@
         const selectedAlgorithm = document.getElementById("algorithm");
 
         function updateLabels(algorithm) {
+            const dealerExistingSecretLabel = document.getElementById("dealer-existing-secret-label");
+            const groupSecretLabel = document.getElementById("group-secret-output-label");
             const groupPublicKeyLabel = document.getElementById("group-public-key-output-label");
+            const verifyPublicKeyLabel = document.getElementById("verify-public-key-label");
+            const verifySignatureLabel = document.getElementById("verify-signature-label");
 
             if (algorithm === "ed25519") {
+                dealerExistingSecretLabel.textContent = "Existing Secret (32 bytes)";
+                groupSecretLabel.textContent = "Group Secret (32 bytes)";
                 groupPublicKeyLabel.textContent = "Group Public Key (32 bytes)";
+                verifyPublicKeyLabel.textContent = "Public Key (32 bytes)";
+                verifySignatureLabel.textContent = "Signature (64 bytes)";
             } else if (algorithm === "ed448") {
+                dealerExistingSecretLabel.textContent = "Existing Secret (57 bytes)";
+                groupSecretLabel.textContent = "Group Secret (57 bytes)";
                 groupPublicKeyLabel.textContent = "Group Public Key (57 bytes)";
+                verifyPublicKeyLabel.textContent = "Public Key (57 bytes)";
+                verifySignatureLabel.textContent = "Signature (114 bytes)";
             }
         }
 

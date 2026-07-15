@@ -17,7 +17,7 @@ from eddsa_threshold.frost.core.ed448.frost_hashing import Ed448FrostHashing
 from eddsa_threshold.eddsa.algorithms.ed25519 import Ed25519
 from eddsa_threshold.eddsa.algorithms.ed448 import Ed448
 
-from util import UserAbort, get_bytes_from_input, get_short_session_id_with_dots, set_output, set_status, add_format_change_listener
+from util import UserAbort, get_bytes_from_input, get_short_session_id_with_dots, set_output, set_output_format_element_override, set_status, add_format_change_listener
 
 ALGORITHMS: Dict[str, Tuple[Type, Type]] = {
     "ed25519": (Ed25519Curve, Ed25519FrostHashing),
@@ -150,9 +150,13 @@ def generate():
         coordinator.set_participant_connections(
             participant_connections_coordinator)
 
+        group_secret = trusted_dealer._seed
         trusted_dealer.keygen()
 
-        set_output("group-public-key-output", coordinator.group_public_key)
+        set_output_format_element_override(
+            "group-public-key-output", "group-info-output-format", coordinator.group_public_key)
+        set_output_format_element_override(
+            "group-secret-output", "group-info-output-format", curve.encoding.encode_scalar(group_secret))
 
         set_status(
             status_element, "Successfully generated shares for all participants. You can now proceed to the coordinator tab.", "success")
@@ -303,5 +307,5 @@ def clear_verify():
 update_algorithm_info()
 
 # format change listeners for all input/output elements that are present at site creation
-add_format_change_listener("group-public-key-output",
-                           "group-public-key-output-format", "dealer-status")
+add_format_change_listener(["group-public-key-output", "group-secret-output"],
+                           "group-info-output-format", "dealer-status")
