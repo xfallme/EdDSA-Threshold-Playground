@@ -93,8 +93,9 @@ class ParticipantView:
             raise ValueError(
                 f"Participant {self.ID} cannot commit to session {session_id} because it has not joined it")
         try:
-            self._coordinator_round_one(
-                session_id, self.ID, self._PARTICIPANT.round_one_commit(session_id))
+            commitment = self._PARTICIPANT.round_one_commit(session_id)
+            self._participant_sessions[session_id].commitment = commitment
+            self._coordinator_round_one(session_id, self.ID, commitment)
             self._participant_sessions[session_id].committed = True
             self.update_session_info(session_id)
             set_status(self._STATUS_ELEMENT,
@@ -113,8 +114,9 @@ class ParticipantView:
             if signing_package is None:
                 raise ValueError(
                     f"Participant {self.ID} has not received a signing package for session {session_id}")
-            self._coordinator_round_two(
-                session_id, self.ID, self._PARTICIPANT.round_two_sign(signing_package))
+            signature_share = self._PARTICIPANT.round_two_sign(signing_package)
+            self._participant_sessions[session_id].signature_share = signature_share
+            self._coordinator_round_two(session_id, self.ID, signature_share)
             self._participant_sessions[session_id].signed = True
             self.update_session_info(session_id)
             set_status(self._STATUS_ELEMENT,
